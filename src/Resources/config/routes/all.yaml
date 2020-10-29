@@ -1,0 +1,2 @@
+site:
+  resource: '@MartenaSoftMenuBundle/Resources/config/routes/menu.yaml'
