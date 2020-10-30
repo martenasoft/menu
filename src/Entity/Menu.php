@@ -3,9 +3,10 @@
 namespace MartenaSoft\Menu\Entity;
 
 use MartenaSoft\Common\Entity\NestedSetEntityInterface;
-
+use MartenaSoft\Menu\Repository\MenuRepository;
+use Doctrine\ORM\Mapping as ORM;
 /**
- * @ORM\Entity(repositoryClass=TstRepository::class)
+ * @ORM\Entity(repositoryClass=MenuRepository::class)
  */
 class Menu implements NestedSetEntityInterface
 {
@@ -14,7 +15,7 @@ class Menu implements NestedSetEntityInterface
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    private int $id;
+    private ?int $id = null;
 
     /** @ORM\Column(type="string", length=65) */
     private string $name;
@@ -44,10 +45,9 @@ class Menu implements NestedSetEntityInterface
         return $this->name;
     }
 
-    public function setName(string $name): self
+    public function setName(?string $name): ?self
     {
         $this->name = $name;
-
         return $this;
     }
 
@@ -98,5 +98,11 @@ class Menu implements NestedSetEntityInterface
     public function getParentId(): ?int
     {
         return $this->parentId;
+    }
+
+    public function setParentId(?int $parentId): self
+    {
+        $this->parentId = $parentId;
+        return $this;
     }
 }
