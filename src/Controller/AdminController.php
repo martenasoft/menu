@@ -8,6 +8,6 @@ class AdminController extends AbstractController
 {
     public function index()
     {
-
+        print 12; die;
     }
 }

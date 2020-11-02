@@ -1,0 +1,3 @@
+menu_admin_index:
+  path: /
+  controller: 'MartenaSoft\Menu\Controller\AdminController::index'
