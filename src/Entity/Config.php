@@ -5,9 +5,11 @@ namespace MartenaSoft\Menu\Entity;
 use MartenaSoft\Menu\Repository\ConfigRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ORM\Entity(repositoryClass=ConfigRepository::class)
+ * @UniqueEntity("name")
  */
 class Config
 {
@@ -27,7 +29,7 @@ class Config
     private int $id;
 
     /**
-     * @Assert\Unique
+     * @Assert\NotBlank()
      * @ORM\Column(nullable=false, unique=true)
      */
     private string $name = 'default';

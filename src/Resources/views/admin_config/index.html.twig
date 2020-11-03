@@ -1,0 +1,51 @@
+{% extends 'base-admin.html.twig' %}
+
+{% block title %}Menu configuration!{% endblock %}
+
+{% block body %}
+
+    <div class="example-wrapper">
+        <div class="count">
+            {{ pagination.getTotalItemCount }}
+            <div class="float-right">
+                <a class="btn btn-success" href="{{ path('menu_admin_config_save') }}">Create New</a>
+            </div>
+            <hr>
+        </div>
+
+        <table class="table table-bordered">
+
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Url Path Type</th>
+                <th></th>
+
+            </tr>
+
+            {# table body #}
+            {% for config in pagination %}
+
+                <tr>
+                    <td>{{ config.id }}</td>
+                    <td>{{ config.name }}</td>
+                    <td>{{ config.type }}</td>
+                    <td>{{ config.urlPathType }}</td>
+                    <td><a href="{{ path('menu_admin_config_save', {id: config.id}) }}" >Edit</a></td>
+                </tr>
+            {#    <tr {% if loop.index is odd %}class="color"{% endif %}>
+                    <td>{{ article.id }}</td>
+                    <td>{{ article.title }}</td>
+                    <td>{{ article.date | date('Y-m-d') }}, {{ article.time | date('H:i:s') }}</td>
+                </tr>#}
+            {% endfor %}
+        </table>
+        <hr>
+        {# display navigation #}
+        <div class="navigation">
+            {{ knp_pagination_render(pagination) }}
+        </div>
+
+    </div>
+{% endblock %}

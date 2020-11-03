@@ -3,6 +3,7 @@
 namespace MartenaSoft\Menu\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use MartenaSoft\Menu\Entity\Config;
 
@@ -26,5 +27,11 @@ class ConfigRepository extends ServiceEntityRepository
             $this->getEntityManager()->persist($entity);
         }
         return $entity;
+    }
+
+    public function getItemsQueryBuilder(): QueryBuilder
+    {
+        $queryBuilder = $this->createQueryBuilder($this->alias);
+        return $queryBuilder;
     }
 }

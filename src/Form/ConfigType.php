@@ -5,6 +5,7 @@ namespace MartenaSoft\Menu\Form;
 use MartenaSoft\Menu\Entity\Config;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 
 class ConfigType extends AbstractType
@@ -12,7 +13,7 @@ class ConfigType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('name')
+            ->add('name', TextType::class)
             ->add('type', ChoiceType::class, [
                 'choices' => [
                     'All open' => Config::TYPE_OPEN,
