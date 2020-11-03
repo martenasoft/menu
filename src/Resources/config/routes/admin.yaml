@@ -1,3 +1,7 @@
 menu_admin_index:
   path: /
   controller: 'MartenaSoft\Menu\Controller\AdminController::index'
+
+menu_admin_config:
+  path: /config
+  controller: 'MartenaSoft\Menu\Controller\AdminController::config'
