@@ -7,6 +7,15 @@ use MartenaSoft\Menu\Repository\MenuRepository;
 use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity(repositoryClass=MenuRepository::class)
+ * @ORM\Table(
+ *     indexes={
+ *          @ORM\Index(
+ *                  name="lft", columns={"lft"},
+ *                  name="lft_rgt", columns={"lft", "rgt"},
+ *                  name="id_lft_rgt", columns={"id", "lft", "rgt"}
+ *              )
+ *          }
+ *     )
  */
 class Menu implements NestedSetEntityInterface
 {
@@ -18,7 +27,7 @@ class Menu implements NestedSetEntityInterface
     private ?int $id = null;
 
     /** @ORM\Column(type="string", length=65) */
-    private string $name;
+    private ?string $name = null;
 
     /** @ORM\Column(type="integer") */
     private int $lft;

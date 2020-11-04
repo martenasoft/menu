@@ -16,17 +16,15 @@ class Config
     public const TYPE_OPEN = 1;
     public const TYPE_COLLAPSED = 2;
     public const TYPE_ACTIVE_OPEN = 3;
-
     public const URL_TYPE_PATH = 1;
     public const URL_TYPE_SINGLE = 2;
-
 
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    private int $id;
+    private ?int $id = null;
 
     /**
      * @Assert\NotBlank()
@@ -40,7 +38,7 @@ class Config
     /** @ORM\Column(type="smallint") */
     private int $urlPathType = self::URL_TYPE_PATH;
 
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }

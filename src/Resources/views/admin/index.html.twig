@@ -1,20 +1,64 @@
-{% extends 'base.html.twig' %}
+{% extends 'base-admin.html.twig' %}
 
-{% block title %}Hello TstController!{% endblock %}
+{% block title %}Menu admin items.{% endblock %}
+{% block h1 %}Menu admin items.{% endblock %}
 
 {% block body %}
-    <style>
-        .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-        .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-    </style>
 
     <div class="example-wrapper">
-        <h1>Hello ! ✅</h1>
+        <div class="count">
+            Total: {{ pagination.getTotalItemCount }}
+            <div class="float-right">
+                <a class="btn btn-success" href="{{ path('menu_admin_save') }}">Create New</a>
+            </div>
+            <hr>
+        </div>
 
-        This friendly message is coming from:
-        <ul>
-            <li>Your controller at <code><a href="{{ '/Users/kot/public_html/m_site/src/Controller/TstController.php'|file_link(0) }}">src/Controller/TstController.php</a></code></li>
-            <li>Your template at <code><a href="{{ '/Users/kot/public_html/m_site/templates/tst/index.html.twig'|file_link(0) }}">templates/tst/index.html.twig</a></code></li>
-        </ul>
+        <table class="table table-bordered">
+            <tr>
+                <th width="5%">#ID</th>
+                <th width="5%">lft</th>
+                <th width="5%">rgt</th>
+                <th width="5%">parent</th>
+                <th width="5%">lvl</th>
+                <th>Name</th>
+                <th></th>
+            </tr>
+            {% for item in pagination %}
+                <tr>
+                    <td>{{ item.id }}</td>
+                    <td width="5%">{{ item.lft }}</td>
+                    <td width="5%">{{ item.rgt }}</td>
+                    <td width="5%">{{ item.parentId }}</td>
+                    <td width="5%">{{ item.lvl }}</td>
+                    <td>
+                        <div>
+                            <a style="margin-left: {{ (item.lvl -1) *5  }}0px" href="{{ path('menu_admin_show', {id: item.id}) }}">
+                                {{ item.name }}
+                            </a>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="float-right">
+                            <a class="btn btn-dark" href="{{ path('menu_admin_save', {id: item.id}) }}">Edit</a>
+                            <a class="btn btn-dark" href="{{ path('menu_admin_up', {id: item.id}) }}">UP</a>
+                            <a class="btn btn-dark" href="{{ path('menu_admin_down', {id: item.id}) }}">Down</a>
+
+                            <a class="btn btn-dark" href="{{ path('menu_admin_save', {id: item.id}) }}"> ... </a>
+                            {#   <a class="btn btn-info"
+                                  href="{{ path('menu_admin_config_show', {id: item.id}) }}">Show</a>
+                               <a class="btn btn-danger" href="{{ path('menu_admin_config_delete', {id: item.id}) }}"
+                                  onclick="return confirm('Delete this item?');"
+                               >Delete</a>#}
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+        <hr>
+        <div class="navigation">
+            {{ knp_pagination_render(pagination) }}
+        </div>
+
     </div>
 {% endblock %}
