@@ -2,9 +2,10 @@
 
 namespace MartenaSoft\Menu\Entity;
 
-use MartenaSoft\Common\Entity\NestedSetEntityInterface;
 use MartenaSoft\Menu\Repository\MenuRepository;
 use Doctrine\ORM\Mapping as ORM;
+use MartenaSoft\NestedSets\Entity\NodeInterface;
+
 /**
  * @ORM\Entity(repositoryClass=MenuRepository::class)
  * @ORM\Table(
@@ -17,7 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
  *          }
  *     )
  */
-class Menu implements NestedSetEntityInterface
+class Menu implements NodeInterface
 {
     /**
      * @ORM\Id
