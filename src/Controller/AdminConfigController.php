@@ -7,8 +7,10 @@ use Knp\Component\Pager\PaginatorInterface;
 use MartenaSoft\Common\Controller\AbstractAdminBaseController;
 use MartenaSoft\Common\Library\CommonValues;
 use MartenaSoft\Menu\Entity\Config;
+use MartenaSoft\Menu\Entity\Menu;
 use MartenaSoft\Menu\Form\ConfigType;
 use MartenaSoft\Menu\Repository\ConfigRepository;
+use MartenaSoft\Menu\Repository\MenuRepository;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -42,7 +44,7 @@ class AdminConfigController extends AbstractAdminBaseController
         return $this->render('@MartenaSoftMenu/admin_config/index.html.twig', ['pagination' => $pagination]);
     }
 
-    public function save(Request $request, int $id = 0): Response
+    public function save(Request $request, MenuRepository $menuRepository, int $id = 0): Response
     {
         if (empty($id)) {
             $menuConfigEntity = new Config();
@@ -51,19 +53,34 @@ class AdminConfigController extends AbstractAdminBaseController
             $menuConfigEntity = $this->configRepository->find($id);
         }
 
+        $name = $menuConfigEntity->getName();
+
         $form = $this->createForm(ConfigType::class, $menuConfigEntity);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
+
+                $menuItem = $this->entityManager
+                    ->getRepository(Menu::class)
+                    ->findOneByName($menuConfigEntity->getName());
+
+                if (empty($menuItem)) {
+                    $menu = new Menu();
+                    $menu->setName($menuConfigEntity->getName());
+                    $menuRepository->create($menu);
+                } elseif (!empty($menuConfigEntity->getName()) && $name != $menuConfigEntity->getName()) {
+                    $menuItem->setName($menuConfigEntity->getName());
+                    $this->entityManager->flush();
+                }
+
                 $this->entityManager->flush($menuConfigEntity);
                 $this->addFlash(CommonValues::FLASH_SUCCESS_TYPE, self::CONFIG_SAVED_SUCCESS_MESSAGE);
                 return $this->redirectToRoute('menu_admin_config_index');
             } catch (\Throwable $exception) {
                 $this->logger->error(CommonValues::ERROR_FORM_SAVE_LOGGER_MESSAGE, [
                     'class' => __CLASS__,
-                    'func' => __FUNCTION__,
-                    'line' => __LINE__,
+                    'line' => $exception->getLine(),
                     'message' => $exception->getMessage(),
                     'code' => $exception->getCode()
                 ]);

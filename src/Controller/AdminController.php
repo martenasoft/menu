@@ -45,26 +45,39 @@ class AdminController extends AbstractController
         return $this->render('@MartenaSoftMenu/admin/index.html.twig', ['pagination' => $pagination]);
     }
 
-    public function save(Request $request, int $id = 0): Response
+    public function saveRoot(Request $request, int $id = 0): Response
+    {
+        return $this->save($request, $id, true);
+    }
+
+    public function save(Request $request, int $id = 0, bool $isRootNode = false): Response
     {
         if (empty($id)) {
             $menuEntity = new Menu();
-            $this->entityManager->persist($menuEntity);
         } else {
             $menuEntity = $this->menuRepository->find($id);
         }
 
-        $form = $this->createForm(MenuType::class, $menuEntity);
+        $parentId = $menuEntity->getParentId();
+
+        $form = $this->createForm(MenuType::class, $menuEntity, ['menu' => $menuEntity, 'isRootNode' => $isRootNode]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
+                $postMenuData = $request->request->get('menu');
+                //if (!)
+                dump($menuEntity, $form->getData(), $request->request->get('menu')['parentId']); die;
+                if ($menuEntity->getId() === null) {
+                    $this->menuRepository->create($menuEntity);
+                }
+
                 $this->entityManager->flush($menuEntity);
-                $this->addFlash(CommonValues::FLASH_SUCCESS_TYPE, self::CONFIG_SAVED_SUCCESS_MESSAGE);
+                $this->addFlash(CommonValues::FLASH_SUCCESS_TYPE, self::MENU_SAVED_SUCCESS_MESSAGE);
                 return $this->redirectToRoute('menu_admin_index');
             } catch (\Throwable $exception) {
                 $this->logger->error(CommonValues::ERROR_FORM_SAVE_LOGGER_MESSAGE, [
-                    'class' => __CLASS__,
+                    'file' => __CLASS__,
                     'func' => __FUNCTION__,
                     'line' => __LINE__,
                     'message' => $exception->getMessage(),

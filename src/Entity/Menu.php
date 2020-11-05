@@ -31,19 +31,19 @@ class Menu implements NodeInterface
     private ?string $name = null;
 
     /** @ORM\Column(type="integer") */
-    private int $lft;
+    private ?int $lft;
 
     /** @ORM\Column(type="integer") */
-    private int $rgt;
+    private ?int $rgt;
 
     /** @ORM\Column(type="integer") */
-    private int $lvl;
+    private ?int $lvl;
 
     /** @ORM\Column(type="integer") */
-    private int $tree;
+    private ?int $tree = null;
 
     /** @ORM\Column(type="integer") */
-    private int $parentId;
+    private ?int $parentId = null;
 
     public function getId(): ?int
     {
