@@ -5,27 +5,48 @@ namespace MartenaSoft\Menu\Repository;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
-use MartenaSoft\Common\Entity\NestedSetEntityInterface;
 use MartenaSoft\Menu\Entity\Menu;
 use MartenaSoft\NestedSets\Entity\NodeInterface;
+use MartenaSoft\NestedSets\Repository\NestedSetsCreateDeleteInterface;
 use MartenaSoft\NestedSets\Repository\NestedSetsMoveItemsInterface;
-use MartenaSoft\NestedSets\Repository\NestedSetsMoveUpDown;
 use MartenaSoft\NestedSets\Repository\NestedSetsMoveUpDownInterface;
 
 class MenuRepository extends ServiceEntityRepository
-    implements NestedSetsMoveItemsInterface, NestedSetsMoveUpDownInterface
+    implements NestedSetsMoveItemsInterface,
+                NestedSetsMoveUpDownInterface,
+                NestedSetsCreateDeleteInterface
 {
     protected string $alias = 'm';
-    private NestedSetsMoveNode $nestedSetsMoveNode;
+    private NestedSetsMoveItemsInterface $nestedSetsMoveItems;
+    private NestedSetsMoveUpDownInterface $nestedSetsMoveUpDown;
+    private NestedSetsCreateDeleteInterface $nestedSetsCreateDelete;
 
     public function __construct(
         ManagerRegistry $registry,
-        NestedSetsMoveItemsInterface $nestedSetsMoveNode,
-        NestedSetsMoveUpDownInterface $moveUpDown
+        NestedSetsMoveItemsInterface $nestedSetsMoveItems,
+        NestedSetsMoveUpDownInterface $nestedSetsMoveUpDown,
+        NestedSetsCreateDeleteInterface $nestedSetsCreateDelete
     ) {
         parent::__construct($registry, Menu::class);
-        $this->nestedSetsMoveNode = $nestedSetsMoveNode;
-        $this->moveUpDown = $moveUpDown;
+
+        $this->nestedSetsMoveItems = $nestedSetsMoveItems;
+        $this->nestedSetsMoveUpDown = $nestedSetsMoveUpDown;
+        $this->nestedSetsCreateDelete = $nestedSetsCreateDelete;
+
+        $this->nestedSetsMoveUpDown ->setEntityClassName(Menu::class);
+        $this->nestedSetsMoveItems->setEntityClassName(Menu::class);
+        $this->nestedSetsCreateDelete->setEntityClassName(Menu::class);
+
+    }
+
+    public function create(NodeInterface $node, ?NodeInterface $parent = null): NodeInterface
+    {
+        return $this->nestedSetsCreateDelete->create($node, $parent);
+    }
+
+    public function delete(NodeInterface $node, bool $isSafeDelete = true): void
+    {
+        $this->nestedSetsCreateDelete->delete($node, $isSafeDelete);
     }
 
     public function getAllQueryBuilder(): QueryBuilder
@@ -36,13 +57,13 @@ class MenuRepository extends ServiceEntityRepository
             ->addOrderBy("{$this->alias}.lft", "ASC");
     }
 
-    public function move(NestedSetEntityInterface $node, ?NestedSetEntityInterface $parent): void
+    public function move(NodeInterface $node, ?NodeInterface $parent): void
     {
-        $this->nestedSetsMoveNode->move($node, $parent);
+        $this->nestedSetsMoveItems->move($node, $parent);
     }
 
     public function change(NodeInterface $node, bool $isUp = true): void
     {
-        $this->moveUpDown->change($node, $isUp);
+        $this->nestedSetsMoveUpDown->change($node, $isUp);
     }
 }
