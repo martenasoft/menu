@@ -11,6 +11,16 @@
 {% block body %}
     <div class="example-wrapper">
         {{ form_start(form) }}
+
+        {% if isShowConfigDropdown == false %}
+            <div class="alert alert-warning">
+                <p>You haven't any menu configurations. You may
+                <a href="{{ path('menu_admin_config_save') }}">create new configuration</a>
+                    or agree with default.</p>
+                <p><a class="btn btn-light" href="{{ path('menu_admin_config_save') }}">Create new configuration</a></p>
+            </div>
+        {% endif %}
+
         {{ form_errors(form) }}
         {{ form_widget(form) }}
         {% set cancel_url = path('menu_admin_index') %}

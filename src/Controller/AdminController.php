@@ -10,6 +10,7 @@ use MartenaSoft\Menu\Entity\Config;
 use MartenaSoft\Menu\Entity\Menu;
 use MartenaSoft\Menu\Form\MenuType;
 use MartenaSoft\Menu\Form\RootManyType;
+use MartenaSoft\Menu\Repository\ConfigRepository;
 use MartenaSoft\Menu\Repository\MenuRepository;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -25,15 +26,18 @@ class AdminController extends AbstractController
     private EntityManagerInterface $entityManager;
     private LoggerInterface $logger;
     private MenuRepository $menuRepository;
+    private ConfigRepository $configRepository;
 
     public function __construct(
         EntityManagerInterface $entityManager,
         LoggerInterface $logger,
-        MenuRepository $menuRepository
+        MenuRepository $menuRepository,
+        ConfigRepository $configRepository
     ) {
         $this->entityManager = $entityManager;
         $this->logger = $logger;
         $this->menuRepository = $menuRepository;
+        $this->configRepository = $configRepository;
     }
 
     public function index(PaginatorInterface $paginator, int $page = 1): Response
@@ -54,10 +58,12 @@ class AdminController extends AbstractController
         } else {
             $menuEntity = $this->menuRepository->find($id);
         }
+        $isShowConfigDropdown = ($this->configRepository->count([]) > 0);
 
-        $form = $this->createForm(RootManyType::class, $menuEntity);
+        $form = $this->createForm(RootManyType::class, $menuEntity, [
+            'isShowConfigDropdown' => $isShowConfigDropdown
+        ]);
         $form->handleRequest($request);
-
         if ($form->isSubmitted() && $form->isValid()) {
             $this->entityManager->beginTransaction();
             try {
@@ -70,16 +76,12 @@ class AdminController extends AbstractController
                     $config = $this->entityManager->getRepository(Config::class)->getOrCreateDefault();
                 }
 
-                dump($config); die;
-
                 if ($menuEntity->getId() === null) {
-                    $this->menuRepository->create($menuEntity);
+                    $menuEntity = $this->menuRepository->create($menuEntity);
                     $this->entityManager->refresh($menuEntity);
                 }
 
-                    $menuEntity->setConfig($config);
-                    $config->setMenu($menuEntity);
-
+                $config->addMenu($menuEntity);
                 $this->entityManager->flush();
                 $this->entityManager->commit();
                 return $this->redirectToRoute('menu_admin_index');
@@ -103,7 +105,8 @@ class AdminController extends AbstractController
         return $this->render(
             '@MartenaSoftMenu/admin/saveRoot.html.twig',
             [
-                'form' => $form->createView()
+                'form' => $form->createView(),
+                'isShowConfigDropdown' => $isShowConfigDropdown
             ]
         );
     }

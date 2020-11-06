@@ -4,44 +4,33 @@ namespace MartenaSoft\Menu\Form;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
+use MartenaSoft\Menu\Entity\Config;
 use MartenaSoft\Menu\Repository\ConfigRepository;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class RootManyType extends AbstractType
 {
-    private ConfigRepository $configRepository;
-
-    public function __construct(ConfigRepository $configRepository)
-    {
-        $this->configRepository = $configRepository;
-    }
-
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-
-        $builder
-            ->add('config', CollectionType::class, [
-                'entry_type' => ConfigType::class
-            ])
-            ->add('name');
+        if ($options['isShowConfigDropdown']) {
+            $builder->add('config', EntityType::class, [
+                'class' => Config::class,
+                'choice_label' => 'name'
+            ]);
+        }
+        $builder->add('name');
     }
 
-    private function getChoices(): ?array
+    public function configureOptions(OptionsResolver $resolver)
     {
-        $items = $this->configRepository->getAllQueryBuilder()->getQuery()->getArrayResult();
-        if (empty($items)) {
-            return null;
-        }
-        $result = new ArrayCollection($items);
-        dump($result);
-
-        $result = [];
-        foreach ($items as $item) {
-            $result[$item['name']] = $item['id'];
-        }
-        return $result;
+        $resolver->setDefaults([
+            'isShowConfigDropdown' => false
+        ]);
     }
 }
+

@@ -53,4 +53,12 @@ class ConfigRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder($this->alias);
     }
+
+    public function setAllIsDefaultAsFalse(): int
+    {
+        $tableName = $this->getClassMetadata()->getTableName();
+        $sql = "UPDATE `{$tableName}` SET `is_default` = 0";
+        return $this->getEntityManager()->getConnection()->executeQuery($sql)->rowCount();
+    }
+
 }

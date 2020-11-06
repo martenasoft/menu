@@ -32,7 +32,7 @@ class Config
      * @Assert\NotBlank()
      * @ORM\Column(nullable=false, unique=true)
      */
-    private string $name = 'default';
+    private ?string $name = 'default';
 
     /** @ORM\Column(type="smallint") */
     private int $type = self::TYPE_OPEN;
@@ -44,7 +44,7 @@ class Config
     private bool $isDefault = true;
 
     /**
-     * @ORM\OneToMany(targetEntity="MartenaSoft\Menu\Entity\Menu", mappedBy="config")
+     * @ORM\OneToMany(targetEntity="MartenaSoft\Menu\Entity\Menu", mappedBy="config", cascade={"persist"})
      * @ORM\JoinColumn(nullable=true)
      */
     private ?Collection $menu;
@@ -59,12 +59,12 @@ class Config
         return $this->id;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): self
+    public function setName(?string $name): self
     {
         $this->name = $name;
         return $this;
@@ -103,11 +103,14 @@ class Config
         return $this;
     }
 
-    public function addMenu(Menu $menu): self
+    public function addMenu(Menu $menu, bool $isSaveConfigInMenuEntity = false): self
     {
         if (!$this->menu->contains($menu)) {
             $this->menu[] = $menu;
-            $menu->setConfig($this);
+
+            if ($isSaveConfigInMenuEntity) {
+                $menu->setConfig($this);
+            }
         }
         return $this;
     }

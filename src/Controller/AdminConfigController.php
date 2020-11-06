@@ -7,8 +7,10 @@ use Knp\Component\Pager\PaginatorInterface;
 use MartenaSoft\Common\Controller\AbstractAdminBaseController;
 use MartenaSoft\Common\Library\CommonValues;
 use MartenaSoft\Menu\Entity\Config;
+use MartenaSoft\Menu\Entity\ConfigSearch;
 use MartenaSoft\Menu\Entity\Menu;
 use MartenaSoft\Menu\Form\ConfigType;
+use MartenaSoft\Menu\Form\SearchFormType;
 use MartenaSoft\Menu\Repository\ConfigRepository;
 use MartenaSoft\Menu\Repository\MenuRepository;
 use Psr\Log\LoggerInterface;
@@ -33,18 +35,29 @@ class AdminConfigController extends AbstractAdminBaseController
         $this->configRepository = $configRepository;
     }
 
-    public function index(PaginatorInterface $paginator, int $page = 1): Response
+    public function index(Request $request, PaginatorInterface $paginator, int $page = 1): Response
     {
-        $itemQuery = $this->configRepository->getItemsQueryBuilder()->getQuery();
+        $itemQueryBuilder = $this
+            ->configRepository
+            ->getItemsQueryBuilder()
+            ->orderBy('mc.id', 'DESC');
+
+        if (!empty($searchWord = $request->query->getAlpha('w'))) {
+            $itemQueryBuilder->andWhere("mc.name LIKE :name")->setParameter(':name', "%$searchWord%");
+        }
+
+        $itemQuery = $itemQueryBuilder->getQuery();
         $pagination = $paginator->paginate(
             $itemQuery,
             $page,
             CommonValues::ADMIN_PAGINATION_LIMIT
         );
-        return $this->render('@MartenaSoftMenu/admin_config/index.html.twig', ['pagination' => $pagination]);
+        return $this->render('@MartenaSoftMenu/admin_config/index.html.twig', [
+            'pagination' => $pagination
+        ]);
     }
 
-    public function save(Request $request, MenuRepository $menuRepository, int $id = 0): Response
+    public function save(Request $request, int $id = 0): Response
     {
         if (empty($id)) {
             $menuConfigEntity = new Config();
@@ -53,25 +66,15 @@ class AdminConfigController extends AbstractAdminBaseController
             $menuConfigEntity = $this->configRepository->find($id);
         }
 
-        $name = $menuConfigEntity->getName();
-
         $form = $this->createForm(ConfigType::class, $menuConfigEntity);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
 
-                $menuItem = $this->entityManager
-                    ->getRepository(Menu::class)
-                    ->findOneByName($menuConfigEntity->getName());
-
-                if (empty($menuItem)) {
-                    $menu = new Menu();
-                    $menu->setName($menuConfigEntity->getName());
-                    $menuRepository->create($menu);
-                } elseif (!empty($menuConfigEntity->getName()) && $name != $menuConfigEntity->getName()) {
-                    $menuItem->setName($menuConfigEntity->getName());
-                    $this->entityManager->flush();
+                if ($form->get('isDefault')) {
+                    $updated = $this->configRepository->setAllIsDefaultAsFalse();
+                    $menuConfigEntity->setIsDefault(true);
                 }
 
                 $this->entityManager->flush($menuConfigEntity);

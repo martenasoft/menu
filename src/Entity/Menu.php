@@ -46,7 +46,7 @@ class Menu implements NodeInterface
     private ?int $parentId = null;
 
     /**
-     * @ORM\ManyToOne(targetEntity="MartenaSoft\Menu\Entity\Config", inversedBy="menu")
+     * @ORM\ManyToOne(targetEntity="MartenaSoft\Menu\Entity\Config", inversedBy="menu", cascade={"persist"})
      * @ORM\JoinColumn(nullable=true)
      */
     private ?Config $config;

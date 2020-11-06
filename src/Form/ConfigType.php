@@ -4,6 +4,7 @@ namespace MartenaSoft\Menu\Form;
 
 use MartenaSoft\Menu\Entity\Config;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -14,7 +15,12 @@ class ConfigType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('name', TextType::class)
+            ->add('name', TextType::class, [
+                'required' => false
+            ])
+            ->add('isDefault', CheckboxType::class, [
+                'required' => false
+            ])
             ->add(
                 'type',
                 ChoiceType::class,
@@ -26,6 +32,7 @@ class ConfigType extends AbstractType
                     ]
                 ]
             )
+
             ->add(
                 'urlPathType',
                 ChoiceType::class,
@@ -42,7 +49,7 @@ class ConfigType extends AbstractType
     {
         $resolver->setDefaults(
             [
-                'data_class' => Config::class,
+                'data_class' => Config::class
             ]
         );
     }
