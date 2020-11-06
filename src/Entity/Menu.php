@@ -45,6 +45,12 @@ class Menu implements NodeInterface
     /** @ORM\Column(type="integer") */
     private ?int $parentId = null;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="MartenaSoft\Menu\Entity\Config", inversedBy="menu")
+     * @ORM\JoinColumn(nullable=true)
+     */
+    private ?Config $config;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -121,4 +127,17 @@ class Menu implements NodeInterface
         $this->parentId = $parentId;
         return $this;
     }
+
+    public function getConfig(): ?Config
+    {
+        return $this->config;
+    }
+
+    public function setConfig(?Config $config): self
+    {
+        $this->config = $config;
+        return $this;
+    }
+
+
 }

@@ -2,6 +2,14 @@ menu_admin_index:
   path: /
   controller: 'MartenaSoft\Menu\Controller\AdminController::index'
 
+menu_admin_save_root:
+  path: /save-root/{id}
+  controller: 'MartenaSoft\Menu\Controller\AdminController::saveRoot'
+  defaults:
+    id: 0
+  requirements:
+    id: \d+
+
 menu_admin_save:
   path: /save/{id}
   controller: 'MartenaSoft\Menu\Controller\AdminController::save'

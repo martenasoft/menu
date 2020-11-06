@@ -2,6 +2,8 @@
 
 namespace MartenaSoft\Menu\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use MartenaSoft\Menu\Repository\ConfigRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -38,6 +40,20 @@ class Config
     /** @ORM\Column(type="smallint") */
     private int $urlPathType = self::URL_TYPE_PATH;
 
+    /** @ORM\Column(type="boolean") */
+    private bool $isDefault = true;
+
+    /**
+     * @ORM\OneToMany(targetEntity="MartenaSoft\Menu\Entity\Menu", mappedBy="config")
+     * @ORM\JoinColumn(nullable=true)
+     */
+    private ?Collection $menu;
+
+    public function __construct()
+    {
+        $this->menu = new ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -73,6 +89,37 @@ class Config
     public function setUrlPathType(int $urlPathType): self
     {
         $this->urlPathType = $urlPathType;
+        return $this;
+    }
+
+    public function isDefault(): bool
+    {
+        return $this->isDefault;
+    }
+
+    public function setIsDefault(bool $isDefault): ?Config
+    {
+        $this->isDefault = $isDefault;
+        return $this;
+    }
+
+    public function addMenu(Menu $menu): self
+    {
+        if (!$this->menu->contains($menu)) {
+            $this->menu[] = $menu;
+            $menu->setConfig($this);
+        }
+        return $this;
+    }
+
+    public function getMenu(): ?Collection
+    {
+        return $this->menu;
+    }
+
+    public function setMenu(?Collection $menu): self
+    {
+        $this->menu = $menu;
         return $this;
     }
 }

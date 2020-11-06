@@ -34,4 +34,23 @@ class ConfigRepository extends ServiceEntityRepository
         $queryBuilder = $this->createQueryBuilder($this->alias);
         return $queryBuilder;
     }
+
+    public function getOrCreateDefault(bool $isFlush = false): Config
+    {
+        $result = $this->findOneByisDefault(true);
+        if (empty($result)) {
+            $result = new Config();
+
+            if ($isFlush) {
+                $this->getEntityManager()->persist($result);
+                $this->getEntityManager()->flush();
+            }
+        }
+        return $result;
+    }
+
+    public function getAllQueryBuilder(): QueryBuilder
+    {
+        return $this->createQueryBuilder($this->alias);
+    }
 }
