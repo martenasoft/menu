@@ -1,0 +1,31 @@
+{% extends 'base-admin.html.twig' %}
+
+{% block title %}Menu configuration. View "{{ configEntity.name }}". {% endblock %}
+
+{% block h1 %}Menu configuration. View "{{ configEntity.name }}". {% endblock %}
+
+{% block body %}
+    <div class="example-wrapper">
+        <table class="table table-bordered">
+            <tr>
+                <th># ID</th>
+                <td>{{ configEntity.id }}</td>
+            </tr>
+            <tr>
+                <th>Name</th>
+                <td>{{ configEntity.name }}</td>
+            </tr>
+            <tr>
+                <th>Type</th>
+                <td>{{ configEntity.type }}</td>
+            </tr>
+            <tr>
+                <th>Url</th>
+                <td>{{ configEntity.urlPathType }}</td>
+            </tr>
+        </table>
+        {% set cancel_url = path('menu_admin_config_index') %}
+        {% set delete_url = path('menu_admin_config_delete', {id: configEntity.id}) %}
+        {% include '@MartenaSoftCommon/common/show_item_bottom.html.twig' %}
+    </div>
+{% endblock %}

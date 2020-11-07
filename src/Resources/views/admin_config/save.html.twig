@@ -1,0 +1,20 @@
+{% extends 'base-admin.html.twig' %}
+
+{% block title %}
+    Menu configuration. {{ form.vars.value.id is null ? "Create" : "Edit \"" ~  form.vars.value.name  ~"\"" }}.
+{% endblock %}
+
+{% block h1 %}
+    Menu configuration. {{ form.vars.value.id is null ? "Create" : "Edit \"" ~  form.vars.value.name  ~"\"" }}.
+{% endblock %}
+
+{% block body %}
+    <div class="example-wrapper">
+        {{ form_start(form) }}
+        {{ form_errors(form) }}
+        {{ form_widget(form) }}
+        {% set cancel_url = path('menu_admin_config_index') %}
+        {% include '@MartenaSoftCommon/common/form_bottom.html.twig' %}
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

@@ -9,7 +9,7 @@ class Configuration implements ConfigurationInterface
 {
     public function getConfigTreeBuilder()
     {
-        $treeBuilder = new TreeBuilder('martena_site');
+        $treeBuilder = new TreeBuilder('martena_menu');
 
         /*$treeBuilder->getRootNode()
             ->children()

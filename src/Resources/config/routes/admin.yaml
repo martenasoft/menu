@@ -1,0 +1,78 @@
+menu_admin_index:
+  path: /
+  controller: 'MartenaSoft\Menu\Controller\AdminController::index'
+
+menu_admin_save_root:
+  path: /save-root/{id}
+  controller: 'MartenaSoft\Menu\Controller\AdminController::saveRoot'
+  defaults:
+    id: 0
+  requirements:
+    id: \d+
+
+menu_admin_save:
+  path: /save/{id}
+  controller: 'MartenaSoft\Menu\Controller\AdminController::save'
+  defaults:
+    id: 0
+  requirements:
+    id: \d+
+
+menu_admin_show:
+  path: /config/show/{id}
+  controller: 'MartenaSoft\Menu\Controller\AdminController::show'
+  defaults:
+    id: 0
+  requirements:
+    id: \d+
+
+menu_admin_up:
+  path: /config/up/{id}
+  controller: 'MartenaSoft\Menu\Controller\AdminController::up'
+  defaults:
+    id: 0
+  requirements:
+    id: \d+
+
+menu_admin_down:
+  path: /config/down/{id}
+  controller: 'MartenaSoft\Menu\Controller\AdminController::down'
+  defaults:
+    id: 0
+  requirements:
+    id: \d+
+
+### config
+
+menu_admin_config_index:
+  path: /config/{page}
+  controller: 'MartenaSoft\Menu\Controller\AdminConfigController::index'
+  defaults:
+    page: 1
+  requirements:
+    page: \d+
+
+
+menu_admin_config_save:
+  path: /config/save/{id}
+  controller: 'MartenaSoft\Menu\Controller\AdminConfigController::save'
+  defaults:
+    id: 0
+  requirements:
+    id: \d+
+
+menu_admin_config_delete:
+  path: /config/delete/{id}
+  controller: 'MartenaSoft\Menu\Controller\AdminConfigController::delete'
+  defaults:
+    id: 0
+  requirements:
+    id: \d+
+
+menu_admin_config_show:
+  path: /config/show/{id}
+  controller: 'MartenaSoft\Menu\Controller\AdminConfigController::show'
+  defaults:
+    id: 0
+  requirements:
+    id: \d+
