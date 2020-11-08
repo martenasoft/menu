@@ -1,0 +1,15 @@
+{% extends 'base-admin.html.twig' %}
+
+{% block title %}
+    Menu. {{ form.vars.value.id is null ? "Create New" : "Edit \""~ form.vars.value.name ~ "\"" }}.
+{% endblock %}
+
+{% block h1 %}
+    Menu. {{ form.vars.value.id is null ? "Create New" : "Edit \""~ form.vars.value.name ~ "\"" }}.
+{% endblock %}
+
+{% block body %}
+    <div class="example-wrapper">
+
+    </div>
+{% endblock %}

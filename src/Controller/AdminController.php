@@ -14,35 +14,18 @@ use MartenaSoft\Menu\Repository\ConfigRepository;
 use MartenaSoft\Menu\Repository\MenuRepository;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class AdminController extends AbstractController
+class AdminController extends AbstractMenuAdminController
 {
-    public const MENU_SAVED_SUCCESS_MESSAGE = 'Config saved success';
     public const MENU_MOVED_DOWN_SUCCESS_MESSAGE = 'Menu moved down';
     public const MENU_MOVED_UP_SUCCESS_MESSAGE = 'Menu moved up';
 
-    private EntityManagerInterface $entityManager;
-    private LoggerInterface $logger;
-    private MenuRepository $menuRepository;
-    private ConfigRepository $configRepository;
-
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        LoggerInterface $logger,
-        MenuRepository $menuRepository,
-        ConfigRepository $configRepository
-    ) {
-        $this->entityManager = $entityManager;
-        $this->logger = $logger;
-        $this->menuRepository = $menuRepository;
-        $this->configRepository = $configRepository;
-    }
-
     public function index(PaginatorInterface $paginator, int $page = 1): Response
     {
-        $itemQuery = $this->menuRepository->getAllQueryBuilder()->getQuery();
+        $itemQuery = $this->getMenuRepository()->getAllQueryBuilder()->getQuery();
         $pagination = $paginator->paginate(
             $itemQuery,
             $page,
@@ -51,109 +34,11 @@ class AdminController extends AbstractController
         return $this->render('@MartenaSoftMenu/admin/index.html.twig', ['pagination' => $pagination]);
     }
 
-    public function saveRoot(Request $request, int $id = 0): Response
+    public function create(Menu $parent): Response
     {
-        if (empty($id)) {
-            $menuEntity = new Menu();
-        } else {
-            $menuEntity = $this->menuRepository->find($id);
-        }
-        $isShowConfigDropdown = ($this->configRepository->count([]) > 0);
 
-        $form = $this->createForm(RootManyType::class, $menuEntity, [
-            'isShowConfigDropdown' => $isShowConfigDropdown
-        ]);
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->entityManager->beginTransaction();
-            try {
-                $config = $this
-                    ->entityManager
-                    ->getRepository(Config::class)
-                    ->findOneByName($menuEntity->getName());
-
-                if (empty($config)) {
-                    $config = $this->entityManager->getRepository(Config::class)->getOrCreateDefault();
-                }
-
-                if ($menuEntity->getId() === null) {
-                    $menuEntity = $this->menuRepository->create($menuEntity);
-                    $this->entityManager->refresh($menuEntity);
-                }
-
-                $config->addMenu($menuEntity);
-                $this->entityManager->flush();
-                $this->entityManager->commit();
-                return $this->redirectToRoute('menu_admin_index');
-            } catch (\Throwable $exception) {
-                $this->entityManager->rollback();
-                $this->logger->error(
-                    CommonValues::ERROR_FORM_SAVE_LOGGER_MESSAGE,
-                    [
-                        'file' => __CLASS__,
-                        'line' => $exception->getLine(),
-                        'message' => $exception->getMessage(),
-                        'code' => $exception->getCode(),
-                    ]
-                );
-                $this->addFlash(
-                    CommonValues::FLASH_ERROR_TYPE,
-                    CommonValues::ERROR_FORM_SAVE_LOGGER_MESSAGE
-                );
-            }
-        }
-        return $this->render(
-            '@MartenaSoftMenu/admin/saveRoot.html.twig',
-            [
-                'form' => $form->createView(),
-                'isShowConfigDropdown' => $isShowConfigDropdown
-            ]
-        );
-    }
-
-    public function save(Request $request, int $id = 0, bool $isRootNode = false): Response
-    {
-        if (empty($id)) {
-            $menuEntity = new Menu();
-        } else {
-            $menuEntity = $this->menuRepository->find($id);
-        }
-
-        $parentId = $menuEntity->getParentId();
-
-        $form = $this->createForm(MenuType::class, $menuEntity, ['menu' => $menuEntity]);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            try {
-                $postMenuData = $request->request->get('menu');
-                //if (!)
-                dump($menuEntity, $form->getData(), $request->request->get('menu')['parentId']);
-                die;
-                if ($menuEntity->getId() === null) {
-                    $this->menuRepository->create($menuEntity);
-                }
-
-                $this->entityManager->flush($menuEntity);
-                $this->addFlash(CommonValues::FLASH_SUCCESS_TYPE, self::MENU_SAVED_SUCCESS_MESSAGE);
-                return $this->redirectToRoute('menu_admin_index');
-            } catch (\Throwable $exception) {
-                $this->logger->error(
-                    CommonValues::ERROR_FORM_SAVE_LOGGER_MESSAGE,
-                    [
-                        'file' => __CLASS__,
-                        'func' => __FUNCTION__,
-                        'line' => __LINE__,
-                        'message' => $exception->getMessage(),
-                        'code' => $exception->getCode()
-                    ]
-                );
-                $this->addFlash(
-                    CommonValues::FLASH_ERROR_TYPE,
-                    CommonValues::ERROR_FORM_SAVE_LOGGER_MESSAGE
-                );
-            }
-        }
+        
+    //    if (($form = $this->save()))
 
         return $this->render(
             '@MartenaSoftMenu/admin/save.html.twig',
@@ -161,11 +46,50 @@ class AdminController extends AbstractController
                 'form' => $form->createView()
             ]
         );
+        $this->getLogger()->error(
+            CommonValues::ERROR_FORM_SAVE_LOGGER_MESSAGE,
+            [
+                'file' => __CLASS__,
+                'func' => __FUNCTION__,
+                'line' => __LINE__,
+                'message' => $exception->getMessage(),
+                'code' => $exception->getCode()
+            ]
+        );
+        $this->addFlash(
+            CommonValues::FLASH_ERROR_TYPE,
+            CommonValues::ERROR_FORM_SAVE_LOGGER_MESSAGE
+        );
+
+        //            $this->addFlash(CommonValues::FLASH_SUCCESS_TYPE, self::MENU_SAVED_SUCCESS_MESSAGE);
+        //
+//return $this->redirectToRoute('menu_admin_index');
+    }
+
+    private function save(Request $request, Menu $menuEntity, ?Menu $parent = null): FormInterface
+    {
+        $form = $this->createForm(MenuType::class, $menuEntity, ['menu' => $menuEntity]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                $this->getEntityManager()->beginTransaction();
+                if ($menuEntity->getId() === null) {
+                    $this->getMenuRepository()->create($menuEntity, $parent);
+                }
+                $this->getMenuRepository()->flush($menuEntity);
+                $this->getEntityManager()->commit();
+                return $form;
+            } catch (\Throwable $exception) {
+                $this->getEntityManager()->rollback();
+                throw $exception;
+            }
+        }
     }
 
     public function down(int $id): Response
     {
-        $menuEntity = $this->menuRepository->find($id);
+        $menuEntity = $this->getMenuRepository()->find($id);
         if (empty($menuEntity)) {
             $this->addFlash(
                 CommonValues::FLASH_ERROR_TYPE,
@@ -174,7 +98,7 @@ class AdminController extends AbstractController
             return $this->redirectToRoute('menu_admin_index');
         }
         try {
-            $this->menuRepository->down($menuEntity);
+            $this->getMenuRepository()->down($menuEntity);
         } catch (ElementNotFoundException | \Throwable $exception) {
             $this->addFlash(
                 CommonValues::FLASH_ERROR_TYPE,
@@ -192,7 +116,7 @@ class AdminController extends AbstractController
 
     public function up(int $id): Response
     {
-        $menuEntity = $this->menuRepository->find($id);
+        $menuEntity = $this->getMenuRepository()->find($id);
         if (empty($menuEntity)) {
             $this->addFlash(
                 CommonValues::FLASH_ERROR_TYPE,
@@ -200,12 +124,17 @@ class AdminController extends AbstractController
             );
             return $this->redirectToRoute('menu_admin_index');
         }
-        $this->menuRepository->up($menuEntity);
+        $this->getMenuRepository()->up($menuEntity);
         $this->addFlash(
             CommonValues::FLASH_SUCCESS_TYPE,
             self::MENU_MOVED_UP_SUCCESS_MESSAGE
         );
         return $this->redirectToRoute('menu_admin_index');
+    }
+
+    protected function getIndexRenderResponse(array $params): Response
+    {
+        return $this->render('@MartenaSoftMenu/admin/index.html.twig', $params);
     }
 
 }

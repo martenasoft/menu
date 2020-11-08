@@ -1,0 +1,17 @@
+{% extends 'base-admin.html.twig' %}
+
+{% block title %}
+    Create Menu.
+{% endblock %}
+
+{% block h1 %}
+    Create Menu.
+{% endblock %}
+
+{% block body %}
+    <div class="example-wrapper">
+        {% include '@MartenaSoftMenu/admin_root/form.html.twig' with {
+            form: form
+        }%}
+    </div>
+{% endblock %}

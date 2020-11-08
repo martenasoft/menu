@@ -1,0 +1,27 @@
+menu_root_admin_index:
+  path: /
+  controller: 'MartenaSoft\Menu\Controller\AdminRootController::index'
+
+menu_root_admin_create:
+  path: /create
+  controller: 'MartenaSoft\Menu\Controller\AdminRootController::create'
+
+menu_root_admin_edit:
+  path: /edit/{id}
+  controller: 'MartenaSoft\Menu\Controller\AdminRootController::edit'
+
+menu_admin_view:
+  path: /view
+  controller: 'MartenaSoft\Menu\Controller\AdminRootController::view'
+  defaults:
+    id: 0
+  requirements:
+    id: \d+
+
+menu_root_admin_delete:
+  path: /delete/{id}
+  controller: 'MartenaSoft\Menu\Controller\AdminRootController::delete'
+
+menu_root_admin_confirm_delete:
+  path: /delete-confirm/{id}
+  controller: 'MartenaSoft\Menu\Controller\AdminRootController::delete'

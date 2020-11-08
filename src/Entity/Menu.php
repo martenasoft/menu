@@ -2,6 +2,8 @@
 
 namespace MartenaSoft\Menu\Entity;
 
+use MartenaSoft\Common\Entity\CommonEntityInterface;
+use MartenaSoft\Common\Entity\SafeDeleteEntityInterface;
 use MartenaSoft\Menu\Repository\MenuRepository;
 use Doctrine\ORM\Mapping as ORM;
 use MartenaSoft\NestedSets\Entity\NodeInterface;
@@ -18,7 +20,7 @@ use MartenaSoft\NestedSets\Entity\NodeInterface;
  *          }
  *     )
  */
-class Menu implements NodeInterface
+class Menu implements CommonEntityInterface, NodeInterface, SafeDeleteEntityInterface
 {
     /**
      * @ORM\Id
@@ -50,6 +52,8 @@ class Menu implements NodeInterface
      * @ORM\JoinColumn(nullable=true)
      */
     private ?Config $config;
+
+    private bool $isDeleted = false;
 
     public function getId(): ?int
     {
@@ -136,6 +140,16 @@ class Menu implements NodeInterface
     public function setConfig(?Config $config): self
     {
         $this->config = $config;
+        return $this;
+    }
+
+    public function isDeleted(): ?bool
+    {
+        return $this->isDeleted;
+    }
+    public function setIsDeleted(?bool $isDeleted): self
+    {
+        $this->isDeleted = $isDeleted;
         return $this;
     }
 }

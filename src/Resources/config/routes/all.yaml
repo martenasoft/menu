@@ -1,7 +1,13 @@
+menu_admin_root:
+  prefix: /admin/root
+  resource: '@MartenaSoftMenuBundle/Resources/config/routes/admin_root.yaml'
+
 menu_admin:
   prefix: /admin
   resource: '@MartenaSoftMenuBundle/Resources/config/routes/admin.yaml'
 
 menu_site:
   resource: '@MartenaSoftMenuBundle/Resources/config/routes/site.yaml'
+
+
 

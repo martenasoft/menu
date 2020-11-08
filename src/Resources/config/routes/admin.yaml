@@ -2,21 +2,10 @@ menu_admin_index:
   path: /
   controller: 'MartenaSoft\Menu\Controller\AdminController::index'
 
-menu_admin_save_root:
-  path: /save-root/{id}
-  controller: 'MartenaSoft\Menu\Controller\AdminController::saveRoot'
-  defaults:
-    id: 0
-  requirements:
-    id: \d+
 
-menu_admin_save:
-  path: /save/{id}
-  controller: 'MartenaSoft\Menu\Controller\AdminController::save'
-  defaults:
-    id: 0
-  requirements:
-    id: \d+
+menu_admin_create:
+  path: /create/{parent}
+  controller: 'MartenaSoft\Menu\Controller\AdminController::create'
 
 menu_admin_show:
   path: /config/show/{id}
@@ -70,7 +59,7 @@ menu_admin_config_delete:
     id: \d+
 
 menu_admin_config_view:
-  path: /config/view/{id}
+  path: /config/show/{id}
   controller: 'MartenaSoft\Menu\Controller\AdminConfigController::view'
   defaults:
     id: 0
