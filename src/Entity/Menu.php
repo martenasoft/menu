@@ -53,6 +53,7 @@ class Menu implements CommonEntityInterface, NodeInterface, SafeDeleteEntityInte
      */
     private ?Config $config;
 
+    /** @ORM\Column(type="boolean")   */
     private bool $isDeleted = false;
 
     public function getId(): ?int

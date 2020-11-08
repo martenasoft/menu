@@ -23,9 +23,14 @@ class MenuType extends AbstractType
     {
         $menu = $this->getMenuDropdownArray($options['menu']);
         if (!empty($menu)) {
+
             $builder
                 ->add('parentId', ChoiceType::class, [
-                    'choices' => $menu
+                    'choices' => $menu,
+                    'attr' => [
+                        'autocomplete' => 'off'
+                    ]
+
                 ]);
         }
         $builder->add('name');
@@ -34,10 +39,11 @@ class MenuType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-               'menu' => null
-           ]
+                'menu' => null
+            ]
         );
     }
+
     private function getMenuDropdownArray(NodeInterface $item): ?array
     {
 
@@ -58,9 +64,9 @@ class MenuType extends AbstractType
 
         foreach ($items as $item) {
             $returnArray[str_pad($item['name'], strlen($item['name']) + (int)$item['lvl'], "-", \STR_PAD_LEFT)] =
-                $item['parentId'];
+                $item['id'];
         }
-        
+
         return $returnArray;
     }
 }

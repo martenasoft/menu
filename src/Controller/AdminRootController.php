@@ -81,45 +81,6 @@ class AdminRootController extends AbstractMenuAdminController
         );
     }
 
-
-    public function delete(Request $request, Menu $menu): Response
-    {
-        if ($request->getMethod() != Request::METHOD_POST) {
-            return $this->confirmDelete($request, $menu, 'menu_root_admin_index');
-        } else {
-            $post = $request->request->get('confirm_delete_form');
-            $isSafeDelete = !empty($post['isSafeDelete']);
-
-            try {
-                $this->getEntityManager()->beginTransaction();
-                if ($isSafeDelete) {
-                    $menu->setIsDeleted(true);
-                    $this->getEntityManager()->flush();
-                } else {
-                    $this->getMenuRepository()->delete($menu);
-                }
-                $this->getEntityManager()->commit();
-                $this->addFlash(
-                    CommonValues::FLASH_SUCCESS_TYPE,
-                    CommonValues::FLUSH_SUCCESS_DELETE_MESSAGE
-                );
-            } catch (\Throwable $exception) {
-                $this->getLogger()->error(
-                    CommonValues::ERROR_FORM_SAVE_LOGGER_MESSAGE,
-                    [
-                        'file' => __CLASS__,
-                        'line' => $exception->getLine(),
-                        'message' => $exception->getMessage(),
-                        'code' => $exception->getCode(),
-                    ]
-                );
-                $this->getEntityManager()->rollback();
-            }
-        }
-
-        return $this->redirectToRoute('menu_root_admin_index');
-    }
-
     private function save(Request $request, Menu $menu): FormInterface
     {
         $isShowConfigDropdown = ($this->getConfigRepository()->count([]) > 0);
@@ -148,6 +109,11 @@ class AdminRootController extends AbstractMenuAdminController
             }
         }
         return $form;
+    }
+
+    protected function getReturnRouteName(): string
+    {
+        return 'menu_admin_index';
     }
 }
 

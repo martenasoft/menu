@@ -2,20 +2,35 @@
 
 {% block title %}Menu admin items.{% endblock %}
 {% block h1 %}Menu admin items.{% endblock %}
+{% set activeUrlParamName = constant('MartenaSoft\\Common\\Library\\CommonValues::ACTIVE_URL_PARAM_NAME') %}
 
 {% block body %}
 
     <div class="example-wrapper">
         <div class="count">
-            Total: {{ pagination.getTotalItemCount }}
-            <div class="float-right">
-                <a class="btn btn-success" href="{{ path('menu_root_admin_create') }}">
-                    <i class="cil-plus"></i>
-                </a>
-                <a class="btn btn-secondary" href="{{ path('menu_admin_config_index') }}">...</a>
+            <div class="row">
+                <div class="col-3">
+                    Total: {{ pagination.getTotalItemCount }}
+                </div>
+                <div class="col-6">
+                    <div class="float-right">
+                        {% include '@MartenaSoftCommon/common/search_form.html.twig' with
+                            {'searh_from_return_url' : path('menu_admin_index')}
+                        %}
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="float-right">
+                        <a class="btn btn-success" href="{{ path('menu_root_admin_create') }}">
+                            <i class="cil-plus"></i>
+                        </a>
+                        <a class="btn btn-secondary" href="{{ path('menu_admin_config_index') }}">...</a>
+                    </div>
+                </div>
             </div>
             <hr>
         </div>
+
 
         <table class="table table-bordered">
             <tr>
@@ -28,7 +43,7 @@
                 <th></th>
             </tr>
             {% for item in pagination %}
-                <tr class="{{ app.request.get('_act') == item.id ? 'table-active' }}  ">
+                <tr class="{{ app.request.get(activeUrlParamName) == item.id ? 'table-active' }}  ">
                     <td>{{ item.id }}</td>
                     <td width="5%">{{ item.lft }}</td>
                     <td width="5%">{{ item.rgt }}</td>
@@ -36,57 +51,19 @@
                     <td width="5%">{{ item.lvl }}</td>
                     <td>
                         <div>
-                            <a style="margin-left: {{ (item.lvl -1) *5 }}0px"
-                               href="{{ path('menu_admin_show', {id: item.id}) }}">
+
                                 {{ item.name }}
-                            </a>
+
                         </div>
                     </td>
-                    <td {{ app.request.get('_act') is empty ? 'style="width:5%"' }}>
+                    <td {{ app.request.get(activeUrlParamName) is empty ? 'style="width:5%"' }}>
                         <div class="float-right ">
-
-                            {% if app.request.get('_act') == item.id %}
-                                <a class="btn btn-success" href="{{ path('menu_admin_create', {parent: item.id}) }}">
-                                    <i class="cil-playlist-add"></i>
-                                </a>
-
-                                {% if item.parentId == 0 %}
-                                    <a class="btn btn-dark" href="{{ path('menu_root_admin_edit', {id: item.id}) }}">
-                                        <i class="cil-pencil"></i>
-                                    </a>
-                                {% else %}
-                                    <a class="btn btn-dark" href="{{ path('menu_admin_save', {id: item.id}) }}">
-                                        <i class="cil-pencil"></i>
-                                    </a>
-                                {% endif %}
-
-                                {% if pagination.getTotalItemCount == 1 %}
-                                    <a class="btn btn-dark disabled" disabled="disabled" href="#">
-                                        <i class="cil-data-transfer-up"></i>
-                                    </a>
-                                {% else %}
-                                    <a class="btn btn-dark" href="{{ path('menu_admin_up', {id: item.id}) }}">
-                                        <i class="cil-data-transfer-up"></i>
-                                    </a>
-                                {% endif %}
-
-                                {% if pagination.getTotalItemCount == 1 %}
-                                    <a class="btn btn-dark disabled" disabled="disabled" href="#">
-                                        <i class="cil-data-transfer-down"></i>
-                                    </a>
-                                {% else %}
-                                    <a class="btn btn-dark" href="{{ path('menu_admin_down', {id: item.id}) }}">
-                                        <i class="cil-data-transfer-down"></i>
-                                    </a>
-                                {% endif %}
-
-
-                                <a class="btn btn-light" href="{{ path('menu_admin_index') }}"> ... </a>
-                            {% else %}
-                                <a class="btn btn-dark" href="{{ path('menu_admin_index', {
-                                    _act: item.id
-                                }) }}"> ... </a>
-                            {% endif %}
+                            {% include '@MartenaSoftMenu/blocks/action_buttons_items_list.html.twig'
+                                with {
+                                    item: item,
+                                    getTotalItemCount:  pagination.getTotalItemCount
+                                }
+                            %}
 
                         </div>
                     </td>

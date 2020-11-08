@@ -51,10 +51,12 @@ class MenuRepository extends ServiceEntityRepository
 
     public function getAllQueryBuilder(): QueryBuilder
     {
-        return $this
+        $queryBuilder = $this
             ->createQueryBuilder($this->alias)
             ->orderBy("{$this->alias}.tree", "ASC")
             ->addOrderBy("{$this->alias}.lft", "ASC");
+
+        return $queryBuilder;
     }
 
     public function getAllRootsQueryBuilder(): QueryBuilder
@@ -70,8 +72,8 @@ class MenuRepository extends ServiceEntityRepository
         $this->nestedSetsMoveItems->move($node, $parent);
     }
 
-    public function change(NodeInterface $node, bool $isUp = true): void
+    public function upDown(NodeInterface $node, bool $isUp = true): void
     {
-        $this->nestedSetsMoveUpDown->change($node, $isUp);
+        $this->nestedSetsMoveUpDown->upDown($node, $isUp);
     }
 }

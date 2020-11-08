@@ -17,15 +17,12 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class AdminConfigController extends AbstractAdminBaseController
+class AdminConfigController extends AbstractMenuAdminController
 {
     public const CONFIG_SAVED_SUCCESS_MESSAGE = 'Config saved success';
     public const CONFIG_DELETE_ERROR_DEFAULT_MESSAGE = "You can't delete default configure.";
     public const CONFIG_DELETE_ERROR_FOREIGN_MESSAGE = "This configurations used in menus";
 
-
-    private EntityManagerInterface $entityManager;
-    private LoggerInterface $logger;
     private ConfigRepository $configRepository;
     private MenuRepository $menuRepository;
 
@@ -35,8 +32,8 @@ class AdminConfigController extends AbstractAdminBaseController
         ConfigRepository $configRepository,
         MenuRepository $menuRepository
     ) {
-        $this->entityManager = $entityManager;
-        $this->logger = $logger;
+
+        parent::__construct($entityManager, $logger);
         $this->configRepository = $configRepository;
         $this->menuRepository = $menuRepository;
     }
@@ -69,7 +66,7 @@ class AdminConfigController extends AbstractAdminBaseController
             $menuConfigEntity = new Config();
             $count = $this->configRepository->count(["isDefault" => true]);
             $menuConfigEntity->setIsDefault($count == 0);
-            $this->entityManager->persist($menuConfigEntity);
+            $this->getEntityManager()->persist($menuConfigEntity);
         } else {
             $menuConfigEntity = $this->configRepository->find($id);
         }
@@ -84,11 +81,11 @@ class AdminConfigController extends AbstractAdminBaseController
                     $menuConfigEntity->setIsDefault(true);
                 }
 
-                $this->entityManager->flush($menuConfigEntity);
+                $this->getEntityManager()->flush($menuConfigEntity);
                 $this->addFlash(CommonValues::FLASH_SUCCESS_TYPE, self::CONFIG_SAVED_SUCCESS_MESSAGE);
                 return $this->redirectToRoute('menu_admin_config_index');
             } catch (\Throwable $exception) {
-                $this->logger->error(CommonValues::ERROR_FORM_SAVE_LOGGER_MESSAGE, [
+                $this->getLogger()->error(CommonValues::ERROR_FORM_SAVE_LOGGER_MESSAGE, [
                     'class' => __CLASS__,
                     'line' => $exception->getLine(),
                     'message' => $exception->getMessage(),
@@ -104,9 +101,8 @@ class AdminConfigController extends AbstractAdminBaseController
         ]);
     }
 
-    public function view(int $id = 0): Response
+    public function viewConfig(Config $configEntity): Response
     {
-        $configEntity = $this->configRepository->find($id);
         if (empty($configEntity)) {
             $this->addFlash(CommonValues::FLASH_ERROR_TYPE,
                             CommonValues::ERROR_ENTITY_RECORD_NOT_FOUND);
@@ -128,9 +124,8 @@ class AdminConfigController extends AbstractAdminBaseController
         ]);
     }
 
-    public function delete(int $id = 0): Response
+    public function deleteConfig(Config $entity): Response
     {
-        $entity = $this->configRepository->find($id);
         if (empty($entity)) {
             $this->addFlash(CommonValues::FLASH_ERROR_TYPE,
                             CommonValues::ERROR_ENTITY_RECORD_NOT_FOUND);
@@ -144,13 +139,13 @@ class AdminConfigController extends AbstractAdminBaseController
         }
 
         try {
-            $this->entityManager->remove($entity);
-            $this->entityManager->flush();
+            $this->getEntityManager()->remove($entity);
+            $this->getEntityManager()->flush();
         } catch (ForeignKeyConstraintViolationException $exception) {
             $this->addFlash(CommonValues::FLASH_ERROR_TYPE,
                             self::CONFIG_DELETE_ERROR_FOREIGN_MESSAGE);
         } catch (\Throwable $exception) {
-            $this->logger->error(CommonValues::ERROR_FORM_SAVE_LOGGER_MESSAGE, [
+            $this->getLogger()->error(CommonValues::ERROR_FORM_SAVE_LOGGER_MESSAGE, [
                 'class' => __CLASS__,
                 'func' => __FUNCTION__,
                 'line' => __LINE__,
@@ -162,4 +157,10 @@ class AdminConfigController extends AbstractAdminBaseController
         }
         return $this->redirectToRoute('menu_admin_config_index');
     }
+
+    protected function getReturnRouteName(): string
+    {
+        return 'menu_admin_config_index';
+    }
+
 }
