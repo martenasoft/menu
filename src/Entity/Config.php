@@ -32,7 +32,7 @@ class Config
      * @Assert\NotBlank()
      * @ORM\Column(nullable=false, unique=true)
      */
-    private ?string $name = 'default';
+    private ?string $name = '';
 
     /** @ORM\Column(type="smallint") */
     private int $type = self::TYPE_OPEN;
@@ -48,6 +48,9 @@ class Config
      * @ORM\JoinColumn(nullable=true)
      */
     private ?Collection $menu;
+
+    /** @ORM\Column(type="text", nullable=true) */
+    private ?string $descriptions;
 
     public function __construct()
     {
@@ -123,6 +126,17 @@ class Config
     public function setMenu(?Collection $menu): self
     {
         $this->menu = $menu;
+        return $this;
+    }
+
+    public function getDescriptions(): ?string
+    {
+        return $this->descriptions;
+    }
+
+    public function setDescriptions(?string $descriptions): self
+    {
+        $this->descriptions = $descriptions;
         return $this;
     }
 }

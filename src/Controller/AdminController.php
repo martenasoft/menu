@@ -121,7 +121,7 @@ class AdminController extends AbstractController
 
         $parentId = $menuEntity->getParentId();
 
-        $form = $this->createForm(MenuType::class, $menuEntity, ['menu' => $menuEntity, 'isRootNode' => $isRootNode]);
+        $form = $this->createForm(MenuType::class, $menuEntity, ['menu' => $menuEntity]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

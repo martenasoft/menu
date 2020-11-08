@@ -23,6 +23,31 @@
                 <th>Url</th>
                 <td>{{ configEntity.urlPathType }}</td>
             </tr>
+
+            <tr>
+                <td colspan="2">{{ configEntity.descriptions }}</td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="{{ path('menu_admin_index') }}">Menu:</a>
+                </td>
+                <td align="right">
+
+                    <a class="btn btn-success" href="{{ path('menu_admin_save_root') }}">
+                        <i class="cil-plus"></i>
+                    </a>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    {% for i, menuItem in allRoots %}
+                        <a href="{{ path('menu_admin_show', {id: menuItem.id}) }}">
+                            {{ i > 0 ? '/ ' }}{{ menuItem.name }}
+                        </a>
+
+                    {% endfor %}
+                </td>
+            </tr>
         </table>
         {% set cancel_url = path('menu_admin_config_index') %}
         {% set delete_url = path('menu_admin_config_delete', {id: configEntity.id}) %}

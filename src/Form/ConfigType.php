@@ -6,8 +6,11 @@ use MartenaSoft\Menu\Entity\Config;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ConfigType extends AbstractType
@@ -42,7 +45,11 @@ class ConfigType extends AbstractType
                         'Single (domain.com/page.html | domain.com/section)' => Config::URL_TYPE_SINGLE
                     ]
                 ]
-            );
+            )
+            ->add('descriptions', TextareaType::class, [
+                'required' => false
+            ])
+        ;
     }
 
     public function configureOptions(OptionsResolver $resolver)

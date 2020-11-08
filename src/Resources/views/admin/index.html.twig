@@ -9,7 +9,10 @@
         <div class="count">
             Total: {{ pagination.getTotalItemCount }}
             <div class="float-right">
-                <a class="btn btn-success" href="{{ path('menu_admin_save_root') }}">Create Menu</a>
+                <a class="btn btn-success" href="{{ path('menu_admin_save_root') }}">
+                    <i class="cil-plus"></i>
+                </a>
+                <a class="btn btn-secondary" href="{{ path('menu_admin_config_index') }}">...</a>
             </div>
             <hr>
         </div>
@@ -43,24 +46,48 @@
                         <div class="float-right ">
 
                             {% if app.request.get('_act') == item.id %}
-                                <a class="btn btn-dark" href="{{ path('menu_admin_save', {id: item.id}) }}">Edit</a>
-                                <a class="btn btn-dark" href="{{ path('menu_admin_up', {id: item.id}) }}">UP</a>
-                                <a class="btn btn-dark" href="{{ path('menu_admin_down', {id: item.id}) }}">Down</a>
-                                <a class="btn btn-success" href="{{ path('menu_admin_save', {id: item.id}) }}">New Item</a>
+                                <a class="btn btn-success" href="{{ path('menu_admin_save', {id: item.id}) }}">
+                                    <i class="cil-playlist-add"></i>
+                                </a>
+
+                                {% if item.parentId == 0 %}
+                                    <a class="btn btn-dark" href="{{ path('menu_admin_save_root', {id: item.id}) }}">
+                                        <i class="cil-pencil"></i>
+                                    </a>
+                                {% else %}
+                                    <a class="btn btn-dark" href="{{ path('menu_admin_save', {id: item.id}) }}">
+                                        <i class="cil-pencil"></i>
+                                    </a>
+                                {% endif %}
+
+                                {% if pagination.getTotalItemCount == 1 or item.parentId == 0 %}
+                                    <a class="btn btn-dark disabled" disabled="disabled" href="#">
+                                        <i class="cil-data-transfer-up"></i>
+                                    </a>
+                                {% else %}
+                                    <a class="btn btn-dark" href="{{ path('menu_admin_up', {id: item.id}) }}">
+                                        <i class="cil-data-transfer-up"></i>
+                                    </a>
+                                {% endif %}
+
+                                {% if pagination.getTotalItemCount == 1 or item.parentId == 0  %}
+                                    <a class="btn btn-dark disabled" disabled="disabled" href="#">
+                                        <i class="cil-data-transfer-down"></i>
+                                    </a>
+                                {% else %}
+                                    <a class="btn btn-dark" href="{{ path('menu_admin_down', {id: item.id}) }}">
+                                        <i class="cil-data-transfer-down"></i>
+                                    </a>
+                                {% endif %}
+
+
                                 <a class="btn btn-light" href="{{ path('menu_admin_index') }}"> ... </a>
-                            {% else%}
+                            {% else %}
                                 <a class="btn btn-dark" href="{{ path('menu_admin_index', {
                                     _act: item.id
                                 }) }}"> ... </a>
                             {% endif %}
 
-
-
-                            {# <a class="btn btn-info"
-                                  href="{{ path('menu_admin_config_show', {id: item.id}) }}">Show</a>
-                               <a class="btn btn-danger" href="{{ path('menu_admin_config_delete', {id: item.id}) }}"
-                                  onclick="return confirm('Delete this item?');"
-                               >Delete</a> #}
                         </div>
                     </td>
                 </tr>

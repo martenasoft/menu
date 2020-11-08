@@ -61,4 +61,14 @@ class ConfigRepository extends ServiceEntityRepository
         return $this->getEntityManager()->getConnection()->executeQuery($sql)->rowCount();
     }
 
+    public function getCounts(): ?array
+    {
+        $sql = "SELECT count(*) AS total, count(IF(is_default = 1, id , NULL)) defaultCount FROM config;";
+        return $this->getEntityManager()->getConnection()->fetchAssociative($sql);
+    }
+
+    public function getAlias(): string
+    {
+        return $this->alias;
+    }
 }

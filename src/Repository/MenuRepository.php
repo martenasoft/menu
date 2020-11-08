@@ -57,6 +57,14 @@ class MenuRepository extends ServiceEntityRepository
             ->addOrderBy("{$this->alias}.lft", "ASC");
     }
 
+    public function getAllRootsQueryBuilder(): QueryBuilder
+    {
+        return $this
+            ->createQueryBuilder($this->alias)
+            ->andWhere("{$this->alias}.lft=:lft")
+            ->setParameter("lft", 1);
+    }
+
     public function move(NodeInterface $node, ?NodeInterface $parent): void
     {
         $this->nestedSetsMoveItems->move($node, $parent);

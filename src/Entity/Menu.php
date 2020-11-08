@@ -138,6 +138,4 @@ class Menu implements NodeInterface
         $this->config = $config;
         return $this;
     }
-
-
 }

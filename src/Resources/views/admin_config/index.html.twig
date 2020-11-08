@@ -25,6 +25,9 @@
                         <a class="btn btn-success" href="{{ path('menu_admin_config_save') }}">
                             <i class="cil-plus"></i>
                         </a>
+                        <a class="btn btn-secondary" href="{{ path('menu_admin_index') }}">
+                            <i class="cil-excerpt"></i>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -44,7 +47,7 @@
                 <tr class="{{ item.isDefault ? 'table-active' }} ">
                     <td>{{ item.id }}</td>
                     <td>
-                        <a href="{{ path('menu_admin_config_show', {id: item.id}) }}">
+                        <a href="{{ path('menu_admin_config_view', {id: item.id}) }}">
                             {{ item.name }}
                         </a>
                     </td>
@@ -57,7 +60,7 @@
                                 <i class="cil-pencil"></i>
                             </a>
                             <a class="btn btn-info"
-                               href="{{ path('menu_admin_config_show', {id: item.id}) }}">
+                               href="{{ path('menu_admin_config_view', {id: item.id}) }}">
                                 <i class="cil-notes"></i>
                             </a>
                             <a class="btn btn-danger" href="{{ path('menu_admin_config_delete', {id: item.id}) }}"
