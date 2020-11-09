@@ -12,6 +12,7 @@ use MartenaSoft\Menu\Form\MenuType;
 use MartenaSoft\Menu\Form\RootManyType;
 use MartenaSoft\Menu\Repository\ConfigRepository;
 use MartenaSoft\Menu\Repository\MenuRepository;
+use MartenaSoft\NestedSets\Exception\NestedSetsMoveUnderSelfException;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormInterface;
@@ -81,14 +82,21 @@ class AdminController extends AbstractMenuAdminController
 
     public function edit(Request $request, Menu $menu): Response
     {
+        $formView = null;
+
         try {
             $parent = $this->getMenuRepository()->find($menu->getParentId());
+
             $form = $this->save($request, $menu, $parent);
             $formView = $form->createView();
             if ($form->isSubmitted() && $form->isValid()) {
                 $this->addFlash(CommonValues::FLASH_SUCCESS_TYPE, self::MENU_SAVED_SUCCESS_MESSAGE);
                 return $this->redirectToRoute('menu_admin_index');
             }
+        } catch (NestedSetsMoveUnderSelfException $exception) {
+            $this->addFlash(CommonValues::FLASH_ERROR_TYPE,
+                NestedSetsMoveUnderSelfException::MESSAGE);
+            return $this->redirectToRoute('menu_admin_index');
         } catch (\Throwable $exception) {
             $this->getLogger()->error(
                 CommonValues::ERROR_FORM_SAVE_LOGGER_MESSAGE,
@@ -104,9 +112,9 @@ class AdminController extends AbstractMenuAdminController
         }
 
 
-        return $this->render('@MartenaSoftMenu/admin/create.html.twig', [
+        return $this->render('@MartenaSoftMenu/admin/edit.html.twig', [
             'form' => $formView,
-            'parent' => $parent
+            'menu' => $menu
         ]);
     }
 
@@ -182,7 +190,14 @@ class AdminController extends AbstractMenuAdminController
                 } else {
 
                     if ($form->getData()->getParentId() != $parent->getId()) {
-                        $parent = $this->getMenuRepository()->find($form->getData()->getParentId());
+
+                        $parent = null;
+                        if ($form->getData()->getParentId() > 0) {
+                            $parent = $this->getMenuRepository()->find($form->getData()->getParentId());
+                        } else {
+                            $defaultConfig = $this->getConfigRepository()->getOrCreateDefault();
+                            $menuEntity->setConfig($defaultConfig);
+                        }
 
                         $this->getMenuRepository()->move($menuEntity, $parent);
                     }

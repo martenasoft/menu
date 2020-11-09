@@ -59,6 +59,16 @@ class MenuRepository extends ServiceEntityRepository
         return $queryBuilder;
     }
 
+    public function getAllSubItemsQueryBuilder(Menu $menu):QueryBuilder
+    {
+        return $this
+            ->getAllQueryBuilder()
+            ->andWhere("{$this->alias}.tree=:tree")->setParameter("tree", $menu->getTree())
+            ->andWhere("{$this->alias}.lft>:lft")->setParameter("lft", $menu->getLft())
+            ->andWhere("{$this->alias}.rgt<:rgt")->setParameter("rgt", $menu->getRgt())
+            ;
+    }
+
     public function getAllRootsQueryBuilder(): QueryBuilder
     {
         return $this

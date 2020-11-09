@@ -51,13 +51,15 @@ class MenuType extends AbstractType
         $queryBuilder = $this
             ->menuRepository
             ->getAllQueryBuilder()
-            ->andWhere('m.tree=:tree')
-            ->setParameter('tree', $item->getTree());
+        //    ->andWhere('m.tree=:tree')
+          //  ->setParameter('tree', $item->getTree())
+        ;
 
         if (!empty($item->getName())) {
             $queryBuilder
-                ->andWhere("m.name<>:name")
-                ->setParameter("name", $item->getName());
+                ->andWhere("m.name<>:name")->setParameter("name", $item->getName())
+                ->andWhere("m.tree=:tree")->setParameter("tree", $item->getTree())
+                ;
         }
 
         $items = $queryBuilder->getQuery()->getArrayResult();

@@ -1,0 +1,23 @@
+{% extends 'base-admin.html.twig' %}
+
+{% block title %}
+    Edit item. {{ menu.name }}.
+{% endblock %}
+
+{% block h1 %}
+    Create item.: {{ menu.name }}.
+{% endblock %}
+
+{% block body %}
+    <div class="example-wrapper">
+        {% if form is empty %}
+            <div class="alert alert-error">
+                System error! See your logs.
+            </div>
+        {% else %}
+            {% include '@MartenaSoftMenu/admin/form.html.twig' with {
+                form: form
+            } %}
+        {% endif %}
+    </div>
+{% endblock %}

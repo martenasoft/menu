@@ -1,0 +1,13 @@
+{% if items is not empty %}
+
+    {% set lvl = 0 %}
+    {% for item in items %}
+        {{ item.lvl > lvl ? "<ul>" }}
+        {{ item.lvl < lvl ? "</ul>" }}
+        {% set lvl = item.lvl %}
+            <li>{{ item.name }} item.lvl {{ item.lvl }} lvl: {{ lvl }}</li>
+    {% endfor %}
+    {% for i in 2..lvl %}
+        </ul>
+    {% endfor %}
+{% endif %}
