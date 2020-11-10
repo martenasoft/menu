@@ -7,9 +7,16 @@ use MartenaSoft\Common\Entity\SafeDeleteEntityInterface;
 use MartenaSoft\Menu\Repository\MenuRepository;
 use Doctrine\ORM\Mapping as ORM;
 use MartenaSoft\NestedSets\Entity\NodeInterface;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ORM\Entity(repositoryClass=MenuRepository::class)
+ * @UniqueEntity(
+ *     fields={"name", "tree"},
+ *     errorPath="name"
+ * )
+ *
  * @ORM\Table(
  *     indexes={
  *          @ORM\Index(
@@ -29,7 +36,10 @@ class Menu implements CommonEntityInterface, NodeInterface, SafeDeleteEntityInte
      */
     private ?int $id = null;
 
-    /** @ORM\Column(type="string", length=65) */
+    /**
+     * @Assert\NotBlank()
+     * @ORM\Column(type="string", length=65)
+     */
     private ?string $name = null;
 
     /** @ORM\Column(type="integer") */
@@ -55,6 +65,12 @@ class Menu implements CommonEntityInterface, NodeInterface, SafeDeleteEntityInte
 
     /** @ORM\Column(type="boolean")   */
     private bool $isDeleted = false;
+
+    /** @ORM\Column(type="string", nullable=true) */
+    private ?string $route;
+
+    /** @ORM\Column(type="string", nullable=true) */
+    private ?string $url;
 
     public function getId(): ?int
     {
@@ -148,9 +164,34 @@ class Menu implements CommonEntityInterface, NodeInterface, SafeDeleteEntityInte
     {
         return $this->isDeleted;
     }
+
     public function setIsDeleted(?bool $isDeleted): self
     {
         $this->isDeleted = $isDeleted;
         return $this;
     }
+
+    public function getRoute(): ?string
+    {
+        return $this->route;
+    }
+
+    public function setRoute(?string $route): self
+    {
+        $this->route = $route;
+        return $this;
+    }
+
+    public function getUrl(): ?string
+    {
+        return $this->url;
+    }
+
+    public function setUrl(?string $url): self
+    {
+        $this->url = $url;
+        return $this;
+    }
+
+
 }

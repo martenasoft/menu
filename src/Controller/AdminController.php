@@ -2,6 +2,7 @@
 
 namespace MartenaSoft\Menu\Controller;
 
+use App\Kernel;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use MartenaSoft\Common\Exception\ElementNotFoundException;
@@ -18,6 +19,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\RouterInterface;
 
 class AdminController extends AbstractMenuAdminController
 {

@@ -4,6 +4,7 @@ namespace MartenaSoft\Menu\Controller;
 
 use MartenaSoft\Menu\Repository\MenuRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class MenuController extends AbstractController
@@ -15,11 +16,17 @@ class MenuController extends AbstractController
         $this->menuRepository = $menuRepository;
     }
 
-    public function vertical(string $name): Response
+    public function vertical(Request $request, string $name): Response
     {
         $menu = $this->menuRepository->findOneByName($name);
-        $items = $this->menuRepository->getAllSubItemsQueryBuilder($menu)->getQuery()->getResult();
+        $items = [];
+
+        if ($menu) {
+            $items = $this->menuRepository->getAllSubItemsQueryBuilder($menu)->getQuery()->getResult();
+        }
+
         return $this->render('@MartenaSoftMenu/menu/vertical.html.twig', [
+            'request' => $request,
             'menu' => $menu,
             'items' => $items
         ]);
@@ -28,10 +35,14 @@ class MenuController extends AbstractController
     public function horizontal(string $name): Response
     {
         $menu = $this->menuRepository->findOneByName($name);
-        $items = $this->menuRepository
-            ->getAllSubItemsQueryBuilder($menu)
-            ->andWhere("m.lvl=2")
-            ->getQuery()->getResult();
+        $items = [];
+
+        if ($menu) {
+            $items = $this->menuRepository
+                ->getAllSubItemsQueryBuilder($menu)
+                ->andWhere("m.lvl=2")
+                ->getQuery()->getResult();
+        }
         return $this->render('@MartenaSoftMenu/menu/horizontal.html.twig', [
             'menu' => $menu,
             'items' => $items

@@ -6,6 +6,7 @@ use MartenaSoft\Menu\Repository\MenuRepository;
 use MartenaSoft\NestedSets\Entity\NodeInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -33,7 +34,17 @@ class MenuType extends AbstractType
 
                 ]);
         }
-        $builder->add('name');
+        $builder
+            ->add('name', TextType::class, [
+                'required' => false
+            ])
+            ->add('route', TextType::class, [
+                'required' => false
+            ])
+            ->add('url', TextType::class, [
+                'required' => false
+            ])
+        ;
     }
 
     public function configureOptions(OptionsResolver $resolver): void
@@ -51,8 +62,6 @@ class MenuType extends AbstractType
         $queryBuilder = $this
             ->menuRepository
             ->getAllQueryBuilder()
-        //    ->andWhere('m.tree=:tree')
-          //  ->setParameter('tree', $item->getTree())
         ;
 
         if (!empty($item->getName())) {

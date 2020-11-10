@@ -1,0 +1,17 @@
+{% if item.route is not empty %}
+
+    {% if showLinkInActive == false and item.route == request.get('_route') %}
+        <strong>{{ item.name }}</strong>
+    {% else %}
+        <a href="{{ path(item.route) }}" class="nav-link"> {{ item.name }}</a>
+    {% endif %}
+
+{% elseif item.url is not empty %}
+    {% if showLinkInActive == false and item.url == request.server.get('REQUEST_URI') %}
+        <strong>{{ item.name }}</strong>
+    {% else %}
+        <a href="{{ item.url }}" target="_blank">{{ item.name }}</a>
+    {% endif %}
+{% else %}
+    {{ item.name }}
+{% endif %}
