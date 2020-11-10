@@ -9,12 +9,10 @@
 {% endblock %}
 
 {% block body %}
-    <div class="example-wrapper">
-        {{ form_start(form) }}
-        {{ form_errors(form) }}
-        {{ form_widget(form) }}
-        {% set cancel_url = path('menu_admin_config_index') %}
-        {% include '@MartenaSoftCommon/common/form_bottom.html.twig' %}
-        {{ form_end(form) }}
-    </div>
+    {{ form_start(form) }}
+    {{ form_errors(form) }}
+    {{ form_widget(form) }}
+    {% set cancel_url = path('menu_admin_config_index') %}
+    {% include '@MartenaSoftCommon/common/form_bottom.html.twig' %}
+    {{ form_end(form) }}
 {% endblock %}

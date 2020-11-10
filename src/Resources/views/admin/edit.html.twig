@@ -9,15 +9,13 @@
 {% endblock %}
 
 {% block body %}
-    <div class="example-wrapper">
-        {% if form is empty %}
-            <div class="alert alert-error">
-                System error! See your logs.
-            </div>
-        {% else %}
-            {% include '@MartenaSoftMenu/admin/form.html.twig' with {
-                form: form
-            } %}
-        {% endif %}
-    </div>
+    {% if form is empty %}
+        <div class="alert alert-error">
+            System error! See your logs.
+        </div>
+    {% else %}
+        {% include '@MartenaSoftMenu/admin/form.html.twig' with {
+            form: form
+        } %}
+    {% endif %}
 {% endblock %}

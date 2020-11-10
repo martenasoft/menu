@@ -1,5 +1,4 @@
 {% if items is not empty %}
-
     {% set lvl = 0 %}
     {% for item in items %}
         {{ item.lvl > lvl ? "<ul>" }}

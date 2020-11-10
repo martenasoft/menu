@@ -1,8 +1,9 @@
 {% if items is not empty %}
     <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
         {% for item in items %}
+
         {#<li class="nav-item active">#}
-        <li class="nav-item active">
+        <li class="nav-item ">
             {#<a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>#}
             <a class="nav-link" href="#">{{ item.name }}</a>
         </li>

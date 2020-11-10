@@ -6,45 +6,46 @@
 
 {% block body %}
 
-    <div class="example-wrapper">
-        <div class="count">
-            <div class="row">
-                <div class="col-3">
-                    Total: {{ pagination.getTotalItemCount }}
-                </div>
-                <div class="col-6">
-                    <div class="float-right">
-                        {% include '@MartenaSoftCommon/common/search_form.html.twig' with
-                            {'searh_from_return_url' : path('menu_admin_index')} %}
-                    </div>
-                </div>
-                <div class="col-3">
-                    <div class="float-right">
-                        <a class="btn btn-success" href="{{ path('menu_root_admin_create') }}">
-                            <i class="cil-plus"></i>
-                        </a>
-                        <a class="btn btn-secondary" href="{{ path('menu_admin_config_index') }}">...</a>
-                    </div>
+    <div class="count">
+        <div class="row">
+            <div class="col-3">
+                Total: {{ pagination.getTotalItemCount }}
+            </div>
+            <div class="col-6">
+                <div class="float-right">
+                    {% include '@MartenaSoftCommon/common/search_form.html.twig' with
+                        {'searh_from_return_url' : path('menu_admin_index')} %}
                 </div>
             </div>
-            <hr>
+            <div class="col-3">
+                <div class="float-right">
+                    <a class="btn btn-success" href="{{ path('menu_root_admin_create') }}">
+                        <i class="cil-plus"></i>
+                    </a>
+                    <a class="btn btn-secondary" href="{{ path('menu_admin_config_index') }}">...</a>
+                </div>
+            </div>
         </div>
-        {% set tree = 1 %}
-        <table class="table table-bordered">
+        <hr>
+    </div>
+    {% set tree = 1 %}
+    <table class="table table-bordered">
         {% for item in pagination %}
 
             {% if item.parentId == 0 %}
 
                 <tr>
                     <td colspan="6"><h3>{{ item.name }}</h3></td>
-                    <td colspan="2"><div class="float-right ">
+                    <td colspan="2">
+                        <div class="float-right ">
                             {% include '@MartenaSoftMenu/blocks/action_buttons_items_list.html.twig'
                                 with {
                                 item: item,
                                 getTotalItemCount:  pagination.getTotalItemCount
                             } %}
 
-                        </div></td>
+                        </div>
+                    </td>
                 </tr>
                 <tr>
                     <th width="5%">#ID</th>
@@ -96,11 +97,9 @@
 
 
         {% endfor %}
-            </table>
-        <hr>
-        <div class="navigation">
-            {{ knp_pagination_render(pagination) }}
-        </div>
-
+    </table>
+    <hr>
+    <div class="navigation">
+        {{ knp_pagination_render(pagination) }}
     </div>
 {% endblock %}

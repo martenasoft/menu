@@ -4,78 +4,72 @@
 {% block h1 %}Menu configuration.{% endblock %}
 
 {% block body %}
+    <div class="count">
 
-
-    <div class="example-wrapper">
-        <div class="count">
-
-            <div class="row">
-                <div class="col-3">
-                    Total: {{ pagination.getTotalItemCount }}
-                </div>
-                <div class="col-6">
-                    <div class="float-right">
-                        {% include '@MartenaSoftCommon/common/search_form.html.twig' with
-                            {'searh_from_return_url' : path('menu_admin_config_index')}
-                        %}
-                    </div>
-                </div>
-                <div class="col-3">
-                    <div class="float-right">
-                        <a class="btn btn-success" href="{{ path('menu_admin_config_save') }}">
-                            <i class="cil-plus"></i>
-                        </a>
-                        <a class="btn btn-secondary" href="{{ path('menu_admin_index') }}">
-                            <i class="cil-excerpt"></i>
-                        </a>
-                    </div>
+        <div class="row">
+            <div class="col-3">
+                Total: {{ pagination.getTotalItemCount }}
+            </div>
+            <div class="col-6">
+                <div class="float-right">
+                    {% include '@MartenaSoftCommon/common/search_form.html.twig' with
+                        {'searh_from_return_url' : path('menu_admin_config_index')} %}
                 </div>
             </div>
-
-            <hr>
+            <div class="col-3">
+                <div class="float-right">
+                    <a class="btn btn-success" href="{{ path('menu_admin_config_save') }}">
+                        <i class="cil-plus"></i>
+                    </a>
+                    <a class="btn btn-secondary" href="{{ path('menu_admin_index') }}">
+                        <i class="cil-excerpt"></i>
+                    </a>
+                </div>
+            </div>
         </div>
 
-        <table class="table table-bordered">
-            <tr>
-                <th>{{ knp_pagination_sortable(pagination, 'ID', 'mc.id') }}</th>
-                <th>Name</th>
-                <th>Type</th>
-                <th>Url Path Type</th>
-                <th></th>
-            </tr>
-            {% for item in pagination %}
-                <tr class="{{ item.isDefault ? 'table-active' }} ">
-                    <td>{{ item.id }}</td>
-                    <td>
-                        <a href="{{ path('menu_admin_config_view', {id: item.id}) }}">
-                            {{ item.name }}
-                        </a>
-                    </td>
-                    <td>{{ item.type }}</td>
-                    <td>{{ item.urlPathType }}</td>
-                    <td>
-                        <div class="float-right">
-                            <a class="btn btn-dark"
-                               href="{{ path('menu_admin_config_save', {id: item.id}) }}">
-                                <i class="cil-pencil"></i>
-                            </a>
-                            <a class="btn btn-info"
-                               href="{{ path('menu_admin_config_view', {id: item.id}) }}">
-                                <i class="cil-notes"></i>
-                            </a>
-                            <a class="btn btn-danger" href="{{ path('menu_admin_config_delete', {id: item.id}) }}"
-                               onclick="return confirm('Delete this item?');">
-                                <i class="cil-x"></i>
-                            </a>
-                        </div>
-                    </td>
-                </tr>
-            {% endfor %}
-        </table>
         <hr>
-        <div class="navigation">
-            {{ knp_pagination_render(pagination) }}
-        </div>
+    </div>
 
+    <table class="table table-bordered">
+        <tr>
+            <th>{{ knp_pagination_sortable(pagination, 'ID', 'mc.id') }}</th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Url Path Type</th>
+            <th></th>
+        </tr>
+        {% for item in pagination %}
+            <tr class="{{ item.isDefault ? 'table-active' }} ">
+                <td>{{ item.id }}</td>
+                <td>
+                    <a href="{{ path('menu_admin_config_view', {id: item.id}) }}">
+                        {{ item.name }}
+                    </a>
+                </td>
+                <td>{{ item.type }}</td>
+                <td>{{ item.urlPathType }}</td>
+                <td>
+                    <div class="float-right">
+                        <a class="btn btn-dark"
+                           href="{{ path('menu_admin_config_save', {id: item.id}) }}">
+                            <i class="cil-pencil"></i>
+                        </a>
+                        <a class="btn btn-info"
+                           href="{{ path('menu_admin_config_view', {id: item.id}) }}">
+                            <i class="cil-notes"></i>
+                        </a>
+                        <a class="btn btn-danger" href="{{ path('menu_admin_config_delete', {id: item.id}) }}"
+                           onclick="return confirm('Delete this item?');">
+                            <i class="cil-x"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+    <hr>
+    <div class="navigation">
+        {{ knp_pagination_render(pagination) }}
     </div>
 {% endblock %}
