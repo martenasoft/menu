@@ -6,6 +6,7 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use MartenaSoft\Menu\Entity\Menu;
+use MartenaSoft\Menu\Entity\MenuInterface;
 use MartenaSoft\NestedSets\Entity\NodeInterface;
 use MartenaSoft\NestedSets\Repository\NestedSetsCreateDeleteInterface;
 use MartenaSoft\NestedSets\Repository\NestedSetsMoveItemsInterface;
@@ -59,7 +60,7 @@ class MenuRepository extends ServiceEntityRepository
         return $queryBuilder;
     }
 
-    public function getAllSubItemsQueryBuilder(Menu $menu):QueryBuilder
+    public function getAllSubItemsQueryBuilder(MenuInterface $menu):QueryBuilder
     {
         return $this
             ->getAllQueryBuilder()
@@ -85,5 +86,15 @@ class MenuRepository extends ServiceEntityRepository
     public function upDown(NodeInterface $node, bool $isUp = true): void
     {
         $this->nestedSetsMoveUpDown->upDown($node, $isUp);
+    }
+
+    public function findOneByNameQueryBuilder(string $name): QueryBuilder
+    {
+        return $this
+            ->createQueryBuilder($this->alias)
+            ->innerJoin("{$this->alias}.config", "config")
+            ->andWhere("{$this->alias}.name=:name")
+            ->setParameter("name", $name)
+            ;
     }
 }

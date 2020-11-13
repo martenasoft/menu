@@ -27,7 +27,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  *          }
  *     )
  */
-class Menu implements CommonEntityInterface, NodeInterface, SafeDeleteEntityInterface
+class Menu implements CommonEntityInterface, NodeInterface, SafeDeleteEntityInterface, MenuInterface
 {
     /**
      * @ORM\Id
@@ -193,5 +193,18 @@ class Menu implements CommonEntityInterface, NodeInterface, SafeDeleteEntityInte
         return $this;
     }
 
+    public function getTransliteratedUrl(int $type = self::URL_TYPE_TRANSLITERATED): string
+    {
+        $transliteratorAny = \Transliterator::create('Any-Latin');
+        $return = $this->getUrl();
+        switch ($type) {
+            default: {
+                $return = $transliteratorAny->transliterate($return);
+                $return = preg_replace('/\W+/', '-', $return);
+                $return = strtolower($return);
+            }
+        }
 
+        return $return;
+    }
 }

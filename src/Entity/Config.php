@@ -13,7 +13,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * @ORM\Entity(repositoryClass=ConfigRepository::class)
  * @UniqueEntity("name")
  */
-class Config
+class Config implements ConfigInterface
 {
     public const TYPE_OPEN = 1;
     public const TYPE_COLLAPSED = 2;
