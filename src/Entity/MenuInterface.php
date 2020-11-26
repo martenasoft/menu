@@ -2,7 +2,6 @@
 
 namespace MartenaSoft\Menu\Entity;
 
-
 interface MenuInterface
 {
     public const URL_TYPE_TRANSLITERATED = 1;

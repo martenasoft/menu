@@ -9,6 +9,7 @@ use MartenaSoft\Common\Library\CommonValues;
 use MartenaSoft\Menu\Entity\Menu;
 use MartenaSoft\Menu\Repository\ConfigRepository;
 use MartenaSoft\Menu\Repository\MenuRepository;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,10 +25,11 @@ abstract class AbstractMenuAdminController extends AbstractAdminBaseController
     public function __construct(
         EntityManagerInterface $entityManager,
         LoggerInterface $logger,
+        EventDispatcherInterface $eventDispatcher,
         MenuRepository $menuRepository,
         ConfigRepository $configRepository
     ) {
-        parent::__construct($entityManager, $logger);
+        parent::__construct($entityManager, $logger, $eventDispatcher);
         $this->menuRepository = $menuRepository;
         $this->configRepository = $configRepository;
     }
