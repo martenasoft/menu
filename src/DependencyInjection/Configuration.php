@@ -2,6 +2,7 @@
 
 namespace MartenaSoft\Menu\DependencyInjection;
 
+use MartenaSoft\Menu\MartenaSoftMenuBundle;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -9,18 +10,13 @@ class Configuration implements ConfigurationInterface
 {
     public function getConfigTreeBuilder()
     {
-        $treeBuilder = new TreeBuilder('martena_menu');
+        $treeBuilder = new TreeBuilder(MartenaSoftMenuBundle::getConfigName());
 
-        /*$treeBuilder->getRootNode()
+        $treeBuilder->getRootNode()
             ->children()
-            ->arrayNode('twitter')
-            ->children()
-            ->integerNode('client_id')->end()
-            ->scalarNode('client_secret')->end()
-            ->end()
-            ->end() // twitter
-            ->end()
-        ;*/
+            ->scalarNode('admin_vertical')->defaultValue('Admin Vertical')->end()
+            ->scalarNode('admin_horizontal')->defaultValue('Admin Horizontal')->end()
+        ;
 
         return $treeBuilder;
     }

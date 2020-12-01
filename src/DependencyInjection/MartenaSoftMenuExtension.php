@@ -2,6 +2,7 @@
 
 namespace MartenaSoft\Menu\DependencyInjection;
 
+use MartenaSoft\Menu\MartenaSoftMenuBundle;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\Config\FileLocator;
@@ -13,6 +14,8 @@ class MartenaSoftMenuExtension extends Extension
     {
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
+
+        $container->setParameter(MartenaSoftMenuBundle::getConfigName(), $config);
 
         $loader = new YamlFileLoader(
             $container,

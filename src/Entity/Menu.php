@@ -3,7 +3,7 @@
 namespace MartenaSoft\Menu\Entity;
 
 use MartenaSoft\Common\Entity\CommonEntityInterface;
-use MartenaSoft\Common\Entity\SafeDeleteEntityInterface;
+use MartenaSoft\Trash\Entity\TrashEntityInterface;
 use MartenaSoft\Menu\Repository\MenuRepository;
 use Doctrine\ORM\Mapping as ORM;
 use MartenaSoft\NestedSets\Entity\NodeInterface;
@@ -27,7 +27,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  *          }
  *     )
  */
-class Menu implements CommonEntityInterface, NodeInterface, SafeDeleteEntityInterface, MenuInterface
+class Menu implements CommonEntityInterface, NodeInterface, TrashEntityInterface, MenuInterface
 {
     /**
      * @ORM\Id

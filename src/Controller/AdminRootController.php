@@ -2,13 +2,7 @@
 
 namespace MartenaSoft\Menu\Controller;
 
-use Doctrine\ORM\EntityManagerInterface;
-use MartenaSoft\Common\Entity\CommonEntityInterface;
-use MartenaSoft\Common\Entity\ConfirmDeleteEntity;
-use MartenaSoft\Common\Entity\SafeDeleteEntityInterface;
-use MartenaSoft\Common\Form\ConfirmDeleteFormType;
 use MartenaSoft\Common\Library\CommonValues;
-use MartenaSoft\Menu\Entity\Config;
 use MartenaSoft\Menu\Entity\Menu;
 use MartenaSoft\Menu\Form\RootManyType;
 use Symfony\Component\Form\FormInterface;
