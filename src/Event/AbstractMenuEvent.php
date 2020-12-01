@@ -27,6 +27,4 @@ abstract class AbstractMenuEvent extends Event implements CommonEventInterface, 
     {
         return $this->entity;
     }
-
-
 }
