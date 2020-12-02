@@ -80,7 +80,11 @@ class MenuRepository extends ServiceEntityRepository
 
     public function move(NodeInterface $node, ?NodeInterface $parent): void
     {
-        $this->nestedSetsMoveItems->move($node, $parent);
+        try {
+            $this->nestedSetsMoveItems->move($node, $parent);
+        } catch (\Throwable $exception) {
+            throw $exception;
+        }
     }
 
     public function upDown(NodeInterface $node, bool $isUp = true): void
@@ -96,5 +100,12 @@ class MenuRepository extends ServiceEntityRepository
             ->andWhere("{$this->alias}.name=:name")
             ->setParameter("name", $name)
             ;
+    }
+
+    public function getParentByItemId(int $id): ?MenuInterface
+    {
+        $sql = "SELECT parent_id FROM menu WHERE `id`=:id";
+        $parentId = $this->getEntityManager()->getConnection()->fetchOne($sql, ["id" => $id]);
+        return $this->find($parentId);
     }
 }

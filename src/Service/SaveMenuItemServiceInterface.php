@@ -8,4 +8,5 @@ interface SaveMenuItemServiceInterface
 {
     public function getMenuByName(string $name): ?MenuInterface;
     public function save(MenuInterface $menuEntity, ?MenuInterface $parent): void;
+    public function initSaveMenuListener(string $menuFieldName): void;
 }

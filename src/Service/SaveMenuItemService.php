@@ -2,19 +2,32 @@
 
 namespace MartenaSoft\Menu\Service;
 
+use Doctrine\Common\Proxy\Proxy;
 use Doctrine\ORM\EntityManagerInterface;
+use MartenaSoft\Common\Event\CommonFormBeforeSaveEvent;
+use MartenaSoft\Menu\Entity\BaseMenuInterface;
+use MartenaSoft\Menu\Entity\Menu;
 use MartenaSoft\Menu\Entity\MenuInterface;
+use MartenaSoft\Menu\Exception\MenuMoveUnderOwnParentException;
 use MartenaSoft\Menu\Repository\MenuRepository;
+use MartenaSoft\Site\Entity\Article;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Form\FormEvent;
 
 class SaveMenuItemService implements SaveMenuItemServiceInterface
 {
     private MenuRepository $menuRepository;
     private EntityManagerInterface $entityManager;
-    
-    public function __construct(MenuRepository $menuRepository, EntityManagerInterface $entityManager)
-    {
+    private EventDispatcherInterface $eventDispatcher;
+
+    public function __construct(
+        MenuRepository $menuRepository,
+        EntityManagerInterface $entityManager,
+        EventDispatcherInterface $eventDispatcher
+    ) {
         $this->menuRepository = $menuRepository;
         $this->entityManager = $entityManager;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function getMenuByName(string $name): ?MenuInterface
@@ -23,11 +36,58 @@ class SaveMenuItemService implements SaveMenuItemServiceInterface
             ->menuRepository
             ->findOneByNameQueryBuilder($name)
             ->getQuery()
-            ->getOneOrNullResult()
-            ;
+            ->getOneOrNullResult();
     }
-    
-    public function save(MenuInterface $menuEntity, ?MenuInterface $parent): void 
+
+    public function selectParentItemDropDown(FormEvent $event): void
+    {
+        $formData = $event->getData();
+        $menu = $formData->getMenu();
+        if (empty($menu) ||
+            empty((int)$id = $menu->getId()) ||
+            empty($parentMenuItem = $this->menuRepository->getParentByItemId($id))
+        ) {
+            return;
+        }
+
+        $formData->setMenu($parentMenuItem);
+        $event->setData($formData);
+    }
+
+    public function initSaveMenuListener(string $menuFieldName): void
+    {
+        $this->eventDispatcher
+            ->addListener(
+                CommonFormBeforeSaveEvent::getEventName(), function (CommonFormBeforeSaveEvent $event)
+                use ($menuFieldName) {
+
+                $formData = $event->getForm()->getData();
+                $menuData = $formData->getMenu();
+                //dump($menu, $menuData); die;
+                if ($menuData === null) {
+                    return;
+                }
+
+                $menu = $this->getMenuEntity($formData, $menuFieldName);
+
+
+
+                if ($menu === null || $formData->getId() === null) {
+                    $menu = new Menu();
+                    $menu->setName($formData->getName());
+                }
+
+
+                try {
+                    $this->save($menu, $menuData);
+                    $event->getForm()->getData()->setMenu($menu);
+                } catch (\Throwable $exception) {
+                    throw $exception;
+                }
+            });
+    }
+
+    public function save(MenuInterface $menuEntity, ?MenuInterface $parent): void
     {
         try {
             $this->entityManager->beginTransaction();
@@ -35,23 +95,37 @@ class SaveMenuItemService implements SaveMenuItemServiceInterface
                 $this->menuRepository->create($menuEntity, $parent);
             } else {
 
-                if ($menuEntity->getParentId() != $parent->getId()) {
-
-                    $parent = null;
-                    if ($menuEntity->getParentId() > 0) {
-                        $parent = $this->menuRepository->find($menuEntity->getParentId());
-                    } else {
-                        $defaultConfig = $this->getConfigRepository()->getOrCreateDefault();
-                        $menuEntity->setConfig($defaultConfig);
-                    }
-                    $this->menuRepository->move($menuEntity, $parent);
+                if ($menuEntity->getParentId() == $parent->getId() && $menuEntity->getTree() == $parent->getTree()) {
+                    throw new MenuMoveUnderOwnParentException();
                 }
+
+                $this->menuRepository->move($menuEntity, $parent);
             }
+
             $this->entityManager->flush($menuEntity);
             $this->entityManager->commit();
         } catch (\Throwable $exception) {
             $this->entityManager->rollback();
             throw $exception;
         }
+    }
+
+    private function getMenuEntity(BaseMenuInterface $menuEntity, string $menuFieldName): ?MenuInterface
+    {
+        $menuId = $this->getMenuId($menuEntity, $menuFieldName);
+        if (empty($menuId)) {
+            return null;
+        }
+
+        return $this->entityManager->getRepository(Menu::class)->find($menuId);
+    }
+
+    private function getMenuId(BaseMenuInterface $menuEntity, string $menuFieldName): ?int
+    {
+        $tableName = $this->entityManager->getClassMetadata(get_class($menuEntity))->getTableName();
+        return $this->entityManager->getConnection()->fetchOne(
+            "SELECT $menuFieldName FROM $tableName WHERE id=:id",
+            ["id" => $menuEntity->getId()]
+        );
     }
 }

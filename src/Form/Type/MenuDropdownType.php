@@ -4,21 +4,14 @@ namespace MartenaSoft\Menu\Form\Type;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface;
 use MartenaSoft\Menu\Entity\Menu;
-use MartenaSoft\Menu\Repository\MenuRepository;
+use MartenaSoft\Menu\Entity\MenuInterface;
+
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class MenuDropdownType extends AbstractType
 {
-    private MenuRepository $menuRepository;
-
-    public function __construct(MenuRepository $menuRepository)
-    {
-        $this->menuRepository = $menuRepository;
-    }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
@@ -27,9 +20,12 @@ class MenuDropdownType extends AbstractType
                 'class' => Menu::class,
                 'query_builder' => function (ServiceEntityRepositoryInterface $entityRepository) {
                     return $entityRepository->createQueryBuilder('m')
-                        ->orderBy('m.lft', 'ASC');
+                        ->addOrderBy('m.tree', 'ASC')
+                        ->addOrderBy('m.lft', 'ASC')
+
+                        ;
                 },
-                'choice_label' => function($data) {
+                'choice_label' => function(?MenuInterface $data) {
 
                     $value = str_pad(
                         $data->getName(),
