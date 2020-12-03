@@ -63,20 +63,28 @@ class SaveMenuItemService implements SaveMenuItemServiceInterface
 
                 $formData = $event->getForm()->getData();
                 $menuData = $formData->getMenu();
-                //dump($menu, $menuData); die;
+                $menu = $this->getMenuEntity($formData, $menuFieldName);
+
+                if (!empty($menu) && empty($menuData)) {
+                    throw new ParentMenuIsEmptyException();
+                }
+
                 if ($menuData === null) {
                     return;
                 }
-
-                $menu = $this->getMenuEntity($formData, $menuFieldName);
-
-
 
                 if ($menu === null || $formData->getId() === null) {
                     $menu = new Menu();
                     $menu->setName($formData->getName());
                 }
 
+                $parentMenu = $this->menuRepository->getParentByItemId($menu->getId());
+                if (!empty($parentMenu) &&
+                    !empty($menuData) &&
+                    $parentMenu->getId() == $menuData->getId() &&
+                    $parentMenu->getTree() == $menuData->getTree()) {
+                    return;
+                }
 
                 try {
                     $this->save($menu, $menuData);
