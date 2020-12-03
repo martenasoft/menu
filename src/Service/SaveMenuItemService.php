@@ -3,7 +3,9 @@
 namespace MartenaSoft\Menu\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
+use MartenaSoft\Common\Event\CommonEventInterface;
 use MartenaSoft\Common\Event\CommonFormBeforeSaveEvent;
+use MartenaSoft\Common\Event\CommonFormEventEntityInterface;
 use MartenaSoft\Menu\Entity\BaseMenuInterface;
 use MartenaSoft\Menu\Entity\Menu;
 use MartenaSoft\Menu\Entity\MenuInterface;
@@ -52,11 +54,11 @@ class SaveMenuItemService implements SaveMenuItemServiceInterface
         $event->setData($formData);
     }
 
-    public function initSaveMenuListener(string $menuFieldName): void
+    public function initSaveMenuListener(string $menuFieldName, string $eventName): void
     {
         $this->eventDispatcher
             ->addListener(
-                CommonFormBeforeSaveEvent::getEventName(), function (CommonFormBeforeSaveEvent $event)
+                $eventName, function (CommonEventInterface $event)
                 use ($menuFieldName) {
 
                 $formData = $event->getForm()->getData();

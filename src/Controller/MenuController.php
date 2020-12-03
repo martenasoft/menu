@@ -22,9 +22,9 @@ class MenuController extends AbstractController
         $this->config = $configService->get(MartenaSoftMenuBundle::getConfigName());
     }
 
-    public function vertical(Request $request): Response
+    public function vertical(Request $request, string $name = 'admin_vertical'): Response
     {
-        $menu = $this->getMenuItem($this->config['admin_vertical']);
+        $menu = $this->getMenuItem($this->config[$name]);
         $items = [];
 
         if ($menu) {
@@ -38,7 +38,7 @@ class MenuController extends AbstractController
         ]);
     }
 
-    public function horizontal(Request $request): Response
+    public function horizontal(Request $request, string $name = 'admin_horizontal'): Response
     {
         $menu = $this->getMenuItem($this->config['admin_horizontal']);
         $items = [];
