@@ -2,7 +2,6 @@
 
 namespace MartenaSoft\Menu\Service;
 
-use Doctrine\Common\Proxy\Proxy;
 use Doctrine\ORM\EntityManagerInterface;
 use MartenaSoft\Common\Event\CommonFormBeforeSaveEvent;
 use MartenaSoft\Menu\Entity\BaseMenuInterface;
@@ -10,7 +9,6 @@ use MartenaSoft\Menu\Entity\Menu;
 use MartenaSoft\Menu\Entity\MenuInterface;
 use MartenaSoft\Menu\Exception\MenuMoveUnderOwnParentException;
 use MartenaSoft\Menu\Repository\MenuRepository;
-use MartenaSoft\Site\Entity\Article;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Form\FormEvent;
 
