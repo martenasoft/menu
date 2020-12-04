@@ -78,7 +78,12 @@ class SaveMenuItemService implements SaveMenuItemServiceInterface
                     $menu->setName($formData->getName());
                 }
 
-                $parentMenu = $this->menuRepository->getParentByItemId($menu->getId());
+                $parentMenu = null;
+
+                if ($menu->getId() !== null) {
+                    $this->menuRepository->getParentByItemId($menu->getId());
+                }
+
                 if (!empty($parentMenu) &&
                     !empty($menuData) &&
                     $parentMenu->getId() == $menuData->getId() &&
@@ -106,7 +111,6 @@ class SaveMenuItemService implements SaveMenuItemServiceInterface
                 if ($menuEntity->getParentId() == $parent->getId() && $menuEntity->getTree() == $parent->getTree()) {
                     throw new MenuMoveUnderOwnParentException();
                 }
-
                 $this->menuRepository->move($menuEntity, $parent);
             }
 

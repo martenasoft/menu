@@ -25,12 +25,13 @@ class MenuController extends AbstractController
     public function vertical(Request $request, string $name = 'admin_vertical'): Response
     {
         $menu = $this->getMenuItem($this->config[$name]);
+
         $items = [];
 
         if ($menu) {
             $items = $this->menuRepository->getAllSubItemsQueryBuilder($menu)->getQuery()->getResult();
         }
-
+        dump($items);
         return $this->render('@MartenaSoftMenu/menu/vertical.html.twig', [
             'request' => $request,
             'menu' => $menu,
@@ -40,7 +41,7 @@ class MenuController extends AbstractController
 
     public function horizontal(Request $request, string $name = 'admin_horizontal'): Response
     {
-        $menu = $this->getMenuItem($this->config['admin_horizontal']);
+        $menu = $this->getMenuItem($this->config[$name]);
         $items = [];
 
         if ($menu) {

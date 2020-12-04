@@ -197,6 +197,11 @@ class Menu implements CommonEntityInterface, NodeInterface, TrashEntityInterface
     {
         $transliteratorAny = \Transliterator::create('Any-Latin');
         $return = $this->getUrl();
+
+        if (empty($return)) {
+            $return = $this->getName();
+        }
+        
         switch ($type) {
             default: {
                 $return = $transliteratorAny->transliterate($return);

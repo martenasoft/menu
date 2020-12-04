@@ -17,7 +17,7 @@ class Configuration implements ConfigurationInterface
             ->scalarNode('admin_vertical')->defaultValue('Admin Vertical')->end()
             ->scalarNode('admin_horizontal')->defaultValue('Admin Horizontal')->end()
             ->scalarNode('content_horizontal')->defaultValue('Content Horizontal')->end()
-            ->scalarNode('content_vertical')->defaultValue('Content Horizontal')->end()
+            ->scalarNode('content_vertical')->defaultValue('Content Vertical')->end()
         ;
 
         return $treeBuilder;
