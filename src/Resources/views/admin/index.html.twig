@@ -76,7 +76,7 @@
                             {{ item.name }}
                         </div>
                     </td>
-                    <td {{ app.request.get(activeUrlParamName) is empty ? 'style="width:5%"' }}>
+                    <td>
                         <div class="float-right ">
                             {% include '@MartenaSoftMenu/blocks/action_buttons_items_list.html.twig'
                                 with {

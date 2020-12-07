@@ -104,9 +104,8 @@ class AdminController extends AbstractMenuAdminController
             $this->getLogger()->error(
                 CommonValues::ERROR_FORM_SAVE_LOGGER_MESSAGE,
                 [
-                    'file' => __CLASS__,
-                    'func' => __FUNCTION__,
-                    'line' => __LINE__,
+                    'file' => $exception->getFile(),
+                    'line' => $exception->getLine(),
                     'message' => $exception->getMessage(),
                     'code' => $exception->getCode()
                 ]
@@ -182,7 +181,7 @@ class AdminController extends AbstractMenuAdminController
 
     private function save(
         Request $request,
-        SaveMenuItemServiceInterface $saveMenuItemService,
+
         Menu $menuEntity,
         ?Menu $parent = null
     ): FormInterface {
@@ -204,7 +203,7 @@ class AdminController extends AbstractMenuAdminController
             }
 
             try {
-                $saveMenuItemService->save($menuEntity, $parent, $defaultConfig);
+                $this->saveMenuItemService->save($menuEntity, $parent, $defaultConfig);
 
                 $this->getEntityManager()->beginTransaction();
                 if ($menuEntity->getId() === null) {

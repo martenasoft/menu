@@ -4,7 +4,7 @@ namespace MartenaSoft\Menu\Controller;
 
 use MartenaSoft\Common\Library\CommonValues;
 use MartenaSoft\Menu\Entity\Menu;
-use MartenaSoft\Menu\Form\RootManyType;
+use MartenaSoft\Menu\Form\RootMenuType;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -80,7 +80,7 @@ class AdminRootController extends AbstractMenuAdminController
         $isShowConfigDropdown = ($this->getConfigRepository()->count([]) > 0);
 
         $form = $this->createForm(
-            RootManyType::class,
+            RootMenuType::class,
             $menu,
             [
                 'isShowConfigDropdown' => $isShowConfigDropdown

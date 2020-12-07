@@ -13,7 +13,7 @@ use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class RootManyType extends AbstractType
+class RootMenuType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -23,7 +23,11 @@ class RootManyType extends AbstractType
                 'choice_label' => 'name'
             ]);
         }
-        $builder->add('name');
+
+        $builder
+            ->add('name')
+            ->add('url')
+        ;
     }
 
     public function configureOptions(OptionsResolver $resolver)

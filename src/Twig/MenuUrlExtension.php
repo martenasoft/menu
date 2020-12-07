@@ -31,6 +31,9 @@ class MenuUrlExtension extends AbstractExtension
 
         $result = $prefix .
             $menuItem->getPath() .
+            '/' .
+            $menuItem->getTransliteratedUrl() .
+            (!empty($postfix) ? '/' : '').
             $postfix;
         return $this->clearUrl($result);
     }

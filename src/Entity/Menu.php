@@ -61,7 +61,7 @@ class Menu implements CommonEntityInterface, NodeInterface, TrashEntityInterface
      * @ORM\ManyToOne(targetEntity="MartenaSoft\Menu\Entity\Config", inversedBy="menu", cascade={"persist"})
      * @ORM\JoinColumn(nullable=true)
      */
-    private ?Config $config;
+    private ?Config $config = null;
 
     /** @ORM\Column(type="boolean")   */
     private bool $isDeleted = false;
@@ -70,7 +70,7 @@ class Menu implements CommonEntityInterface, NodeInterface, TrashEntityInterface
     private ?string $route;
 
     /** @ORM\Column(type="string", nullable=true) */
-    private ?string $url;
+    private ?string $url = null;
 
     /** @ORM\Column(type="string", nullable=true) */
     private ?string $path;
@@ -212,10 +212,6 @@ class Menu implements CommonEntityInterface, NodeInterface, TrashEntityInterface
         $transliteratorAny = \Transliterator::create('Any-Latin');
         $return = $this->getUrl();
 
-        if (empty($return)) {
-            $return = $this->getName();
-        }
-        
         switch ($type) {
             default: {
                 $return = $transliteratorAny->transliterate($return);
