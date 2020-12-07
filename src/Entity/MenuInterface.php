@@ -51,5 +51,9 @@ interface MenuInterface
 
     public function setUrl(?string $url): self;
 
+    public function getPath(): ?string;
+
+    public function setPath(?string $path): self;
+
     public function getTransliteratedUrl(int $type = self::URL_TYPE_TRANSLITERATED): string;
 }

@@ -17,7 +17,7 @@ class AdminRootController extends AbstractMenuAdminController
             $menuEntity = new Menu();
             if (($form = $this->save($request, $menuEntity))->isSubmitted()) {
                 $this->addFlash(CommonValues::FLASH_SUCCESS_TYPE, self::MENU_SAVED_SUCCESS_MESSAGE);
-                return $this->redirectToRoute('menu_admin_index');
+                return $this->redirectToRoute('menu_admin_config_save');
             }
         } catch (\Throwable $exception) {
             $this->getLogger()->error(

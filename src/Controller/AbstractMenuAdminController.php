@@ -18,9 +18,9 @@ abstract class AbstractMenuAdminController extends AbstractAdminBaseController
 {
     public const MENU_SAVED_SUCCESS_MESSAGE = 'Config saved success';
 
-    private LoggerInterface $logger;
-    private MenuRepository $menuRepository;
-    private ConfigRepository $configRepository;
+    protected LoggerInterface $logger;
+    protected MenuRepository $menuRepository;
+    protected ConfigRepository $configRepository;
 
     public function __construct(
         EntityManagerInterface $entityManager,

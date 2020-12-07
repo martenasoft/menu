@@ -4,7 +4,9 @@ namespace MartenaSoft\Menu\Repository;
 
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use MartenaSoft\Common\Entity\CommonEntityConfigInterface;
 use MartenaSoft\Common\Repository\AbstractCommonRepository;
+use MartenaSoft\Menu\Entity\Config;
 use MartenaSoft\Menu\Entity\Menu;
 use MartenaSoft\Menu\Entity\MenuInterface;
 use MartenaSoft\NestedSets\Entity\NodeInterface;
@@ -14,8 +16,8 @@ use MartenaSoft\NestedSets\Repository\NestedSetsMoveUpDownInterface;
 
 class MenuRepository extends AbstractCommonRepository
     implements NestedSetsMoveItemsInterface,
-                NestedSetsMoveUpDownInterface,
-                NestedSetsCreateDeleteInterface
+               NestedSetsMoveUpDownInterface,
+               NestedSetsCreateDeleteInterface
 {
     private NestedSetsMoveItemsInterface $nestedSetsMoveItems;
     private NestedSetsMoveUpDownInterface $nestedSetsMoveUpDown;
@@ -33,10 +35,9 @@ class MenuRepository extends AbstractCommonRepository
         $this->nestedSetsMoveUpDown = $nestedSetsMoveUpDown;
         $this->nestedSetsCreateDelete = $nestedSetsCreateDelete;
 
-        $this->nestedSetsMoveUpDown ->setEntityClassName(Menu::class);
+        $this->nestedSetsMoveUpDown->setEntityClassName(Menu::class);
         $this->nestedSetsMoveItems->setEntityClassName(Menu::class);
         $this->nestedSetsCreateDelete->setEntityClassName(Menu::class);
-
     }
 
     public static function getAlias(): string
@@ -59,27 +60,26 @@ class MenuRepository extends AbstractCommonRepository
     {
         $queryBuilder = $this
             ->getQueryBuilder()
-            ->orderBy(static::getAlias().".tree", "ASC")
-            ->addOrderBy(static::getAlias().".lft", "ASC");
+            ->orderBy(static::getAlias() . ".tree", "ASC")
+            ->addOrderBy(static::getAlias() . ".lft", "ASC");
 
         return $queryBuilder;
     }
 
-    public function getAllSubItemsQueryBuilder(MenuInterface $menu):QueryBuilder
+    public function getAllSubItemsQueryBuilder(MenuInterface $menu): QueryBuilder
     {
         return $this
             ->getQueryBuilder()
-            ->andWhere(static::getAlias().".tree=:tree")->setParameter("tree", $menu->getTree())
-            ->andWhere(static::getAlias().".lft>:lft")->setParameter("lft", $menu->getLft())
-            ->andWhere(static::getAlias().".rgt<:rgt")->setParameter("rgt", $menu->getRgt())
-            ;
+            ->andWhere(static::getAlias() . ".tree=:tree")->setParameter("tree", $menu->getTree())
+            ->andWhere(static::getAlias() . ".lft>:lft")->setParameter("lft", $menu->getLft())
+            ->andWhere(static::getAlias() . ".rgt<:rgt")->setParameter("rgt", $menu->getRgt());
     }
 
     public function getAllRootsQueryBuilder(): QueryBuilder
     {
         return $this
             ->getQueryBuilder()
-            ->andWhere(static::getAlias().".lft=:lft")
+            ->andWhere(static::getAlias() . ".lft=:lft")
             ->setParameter("lft", 1);
     }
 
@@ -101,10 +101,9 @@ class MenuRepository extends AbstractCommonRepository
     {
         return $this
             ->getQueryBuilder()
-            ->innerJoin("static::getAlias().config", "config")
-            ->andWhere("static::getAlias().name=:name")
-            ->setParameter("name", $name)
-            ;
+            ->leftJoin(static::getAlias() . ".config", "config")
+            ->andWhere(static::getAlias() . ".name=:name")
+            ->setParameter("name", $name);
     }
 
     public function getParentByItemId(int $id): ?MenuInterface
@@ -114,7 +113,7 @@ class MenuRepository extends AbstractCommonRepository
         return $this->find($parentId);
     }
 
-    public function getParentsByItemQueryBuilder(MenuInterface $menu): ?QueryBuilder
+    public function getParentsByItemQueryBuilder(MenuInterface $menu): QueryBuilder
     {
         $alias = static::getAlias();
 
@@ -122,7 +121,25 @@ class MenuRepository extends AbstractCommonRepository
             ->getQueryBuilder()
             ->andWhere("{$alias}.lft<:lft")->setParameter('lft', $menu->getLft())
             ->andWhere("{$alias}.rgt>:rgt")->setParameter('rgt', $menu->getRgt())
-            ->andWhere("{$alias}.tree=:tree")->setParameter('tree', $menu->getTree())
-        ;
+            ->andWhere("{$alias}.tree=:tree")->setParameter('tree', $menu->getTree());
+    }
+
+    public function getConfig(MenuInterface $rootNode): Config
+    {
+        $config = null;
+
+        if (empty($config = $rootNode->getConfig())) {
+            $config = $this
+                ->getEntityManager()
+                ->getRepository(Config::class)
+                ->findOneByName(CommonEntityConfigInterface::DEFAULT_NAME);
+        }
+
+        if (empty($config)) {
+            $config = new Config();
+            $config->setUrlPathType(Config::URL_TYPE_PATH);
+        }
+
+        return $config;
     }
 }

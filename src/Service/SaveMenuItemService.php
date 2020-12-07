@@ -10,6 +10,7 @@ use MartenaSoft\Menu\Entity\BaseMenuInterface;
 use MartenaSoft\Menu\Entity\Menu;
 use MartenaSoft\Menu\Entity\MenuInterface;
 use MartenaSoft\Menu\Exception\MenuMoveUnderOwnParentException;
+use MartenaSoft\Menu\Repository\ConfigRepository;
 use MartenaSoft\Menu\Repository\MenuRepository;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Form\FormEvent;
@@ -19,15 +20,18 @@ class SaveMenuItemService implements SaveMenuItemServiceInterface
     private MenuRepository $menuRepository;
     private EntityManagerInterface $entityManager;
     private EventDispatcherInterface $eventDispatcher;
+    private MenuUrlService $menuUrlService;
 
     public function __construct(
         MenuRepository $menuRepository,
         EntityManagerInterface $entityManager,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        MenuUrlService $menuUrlService
     ) {
         $this->menuRepository = $menuRepository;
         $this->entityManager = $entityManager;
         $this->eventDispatcher = $eventDispatcher;
+        $this->menuUrlService = $menuUrlService;
     }
 
     public function getMenuByName(string $name): ?MenuInterface
@@ -100,23 +104,31 @@ class SaveMenuItemService implements SaveMenuItemServiceInterface
             });
     }
 
-    public function save(MenuInterface $menuEntity, ?MenuInterface $parent): void
+    public function save(MenuInterface $menuEntity, ?MenuInterface $parent, ?Config $menuConfig = null): void
     {
         try {
             $this->entityManager->beginTransaction();
             if ($menuEntity->getId() === null) {
                 $this->menuRepository->create($menuEntity, $parent);
-            } else {
+            } elseif ($menuEntity->getParentId() != $parent->getId() || $menuEntity->getTree() != $parent->getTree()) {
 
-                if ($menuEntity->getParentId() == $parent->getId() && $menuEntity->getTree() == $parent->getTree()) {
-                    throw new MenuMoveUnderOwnParentException();
-                }
                 $this->menuRepository->move($menuEntity, $parent);
+            }
+
+            if (empty($menuConfig)) {
+                $menuConfig = $this->menuRepository->getConfig($menuEntity);
+                $menuEntity->setConfig($menuConfig);
+            }
+
+            switch ($menuConfig->getUrlPathType()) {
+                default:
+                    $menuEntity->setPath($this->menuUrlService->urlPathFromItem($menuEntity));
             }
 
             $this->entityManager->flush($menuEntity);
             $this->entityManager->commit();
         } catch (\Throwable $exception) {
+            dump($exception); die;
             $this->entityManager->rollback();
             throw $exception;
         }
@@ -128,7 +140,6 @@ class SaveMenuItemService implements SaveMenuItemServiceInterface
         if (empty($menuId)) {
             return null;
         }
-
         return $this->entityManager->getRepository(Menu::class)->find($menuId);
     }
 

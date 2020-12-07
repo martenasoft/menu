@@ -13,6 +13,7 @@ use MartenaSoft\Menu\Form\MenuType;
 use MartenaSoft\Menu\Form\RootManyType;
 use MartenaSoft\Menu\Repository\ConfigRepository;
 use MartenaSoft\Menu\Repository\MenuRepository;
+use MartenaSoft\Menu\Service\SaveMenuItemServiceInterface;
 use MartenaSoft\NestedSets\Exception\NestedSetsMoveUnderSelfException;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -39,11 +40,11 @@ class AdminController extends AbstractMenuAdminController
         }
 
         $itemQuery = $itemQueryBuilder->getQuery();
-
         $pagination = $paginator->paginate(
             $itemQuery,
             $page,
-            CommonValues::ADMIN_PAGINATION_LIMIT
+            CommonValues::ADMIN_PAGINATION_LIMIT,
+            ['distinct' => false]
         );
         return $this->render('@MartenaSoftMenu/admin/index.html.twig', ['pagination' => $pagination]);
     }
@@ -179,30 +180,38 @@ class AdminController extends AbstractMenuAdminController
         return [];
     }
 
-    private function save(Request $request, Menu $menuEntity, ?Menu $parent = null): FormInterface
-    {
+    private function save(
+        Request $request,
+        SaveMenuItemServiceInterface $saveMenuItemService,
+        Menu $menuEntity,
+        ?Menu $parent = null
+    ): FormInterface {
+
         $form = $this->createForm(MenuType::class, $menuEntity, ['menu' => $menuEntity]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            $defaultConfig = null;
+
+            if ($form->getData()->getParentId() != $parent->getId()) {
+
+                if ($form->getData()->getParentId() > 0) {
+                    $parent = $this->getMenuRepository()->find($form->getData()->getParentId());
+                } else {
+                    $defaultConfig = $this->getConfigRepository()->getOrCreateDefault();
+                }
+            }
+
             try {
+                $saveMenuItemService->save($menuEntity, $parent, $defaultConfig);
+
                 $this->getEntityManager()->beginTransaction();
                 if ($menuEntity->getId() === null) {
                     $this->getMenuRepository()->create($menuEntity, $parent);
                 } else {
 
-                    if ($form->getData()->getParentId() != $parent->getId()) {
 
-                        $parent = null;
-                        if ($form->getData()->getParentId() > 0) {
-                            $parent = $this->getMenuRepository()->find($form->getData()->getParentId());
-                        } else {
-                            $defaultConfig = $this->getConfigRepository()->getOrCreateDefault();
-                            $menuEntity->setConfig($defaultConfig);
-                        }
-
-                        $this->getMenuRepository()->move($menuEntity, $parent);
-                    }
 
                 }
                 $this->getEntityManager()->flush($menuEntity);

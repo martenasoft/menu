@@ -1,22 +1,20 @@
-
 {% set activeUrlParamName = constant('MartenaSoft\\Common\\Library\\CommonValues::ACTIVE_URL_PARAM_NAME') %}
 {% set params = {id: item.id, (activeUrlParamName): item.id} %}
 
-{% if app.request.get(activeUrlParamName) == item.id %}
 
-    <a class="btn btn-success" href="{{ path('menu_admin_create', {parent: item.id}) }}">
-        <i class="cil-playlist-add"></i>
+<a class="btn btn-success" href="{{ path('menu_admin_create', {parent: item.id}) }}">
+    <i class="cil-playlist-add"></i>
+</a>
+
+{% if item.parentId == 0 %}
+    <a class="btn btn-dark" href="{{ path('menu_root_admin_edit', {id: item.id}) }}">
+        <i class="cil-pencil"></i>
     </a>
-
-    {% if item.parentId == 0 %}
-        <a class="btn btn-dark" href="{{ path('menu_root_admin_edit', {id: item.id}) }}">
-            <i class="cil-pencil"></i>
-        </a>
-    {% else %}
-        <a class="btn btn-dark" href="{{ path('menu_admin_edit', {id: item.id}) }}">
-            <i class="cil-pencil"></i>
-        </a>
-    {% endif %}
+{% else %}
+    <a class="btn btn-dark" href="{{ path('menu_admin_edit', {id: item.id}) }}">
+        <i class="cil-pencil"></i>
+    </a>
+{% endif %}
 
     {% if getTotalItemCount == 1 %}
         <a class="btn btn-dark disabled" disabled="disabled" href="#">
@@ -40,14 +38,6 @@
         </a>
     {% endif %}
 
-    <a class="btn btn-danger" href="{{ path('menu_admin_delete', params) }}">
-        <i class="cil-x"></i>
-    </a>
-
-
-    <a class="btn btn-light" href="{{ path('menu_admin_index') }}"> ... </a>
-{% else %}
-    <a class="btn btn-dark" href="{{ path('menu_admin_index', {
-        (activeUrlParamName): item.id
-    }) }}"> ... </a>
-{% endif %}
+<a class="btn btn-danger" href="{{ path('menu_admin_delete', params) }}">
+    <i class="cil-x"></i>
+</a>

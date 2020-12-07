@@ -13,19 +13,17 @@ class MenuUrlService
         $this->menuRepository = $menuRepository;
     }
 
-    public function urlPathFromItem(MenuInterface $menu, string $slider = "/"): ?string
+    public function urlPathFromItem(?MenuInterface $menu, string $slider = "/"): ?string
     {
         $queryBuilder = $this->menuRepository->getParentsByItemQueryBuilder($menu);
-        $items = $queryBuilder->getQuery()->getResult();
-
+        $items = $queryBuilder->orderBy(MenuRepository::getAlias().".rgt", "DESC")->getQuery()->getResult();
         $result = "";
-
         if (!empty($items)) {
             foreach ($items as $item) {
-                dump($item->getTransliteratedUrl());
                 $result .= $slider . $item->getTransliteratedUrl();
             }
         }
+        $result = $result . $slider . $menu->getTransliteratedUrl();
         return $result;
     }
 }

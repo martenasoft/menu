@@ -23,8 +23,20 @@ class MenuUrlExtension extends AbstractExtension
         ];
     }
 
-    public function getUrl(MenuInterface $url)
+    public function getUrl(?MenuInterface $menuItem, string $prefix = '', string $postfix = ''): string
     {
-        return $this->menuUrlService->urlPathFromItem($url);
+        if (empty($menuItem)) {
+            return "";
+        }
+
+        $result = $prefix .
+            $menuItem->getPath() .
+            $postfix;
+        return $this->clearUrl($result);
+    }
+
+    private function clearUrl(string $url): string
+    {
+        return preg_replace('/\/{2,}/', '', $url);
     }
 }

@@ -1,5 +1,7 @@
 menu_admin_index:
-  path: /
+  path: /{page}
+  defaults:
+    page: 1
   controller: 'MartenaSoft\Menu\Controller\AdminController::index'
 
 

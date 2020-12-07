@@ -13,6 +13,7 @@ use MartenaSoft\Menu\Form\ConfigType;
 use MartenaSoft\Menu\Form\SearchFormType;
 use MartenaSoft\Menu\Repository\ConfigRepository;
 use MartenaSoft\Menu\Repository\MenuRepository;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,21 +23,6 @@ class AdminConfigController extends AbstractMenuAdminController
     public const CONFIG_SAVED_SUCCESS_MESSAGE = 'Config saved success';
     public const CONFIG_DELETE_ERROR_DEFAULT_MESSAGE = "You can't delete default configure.";
     public const CONFIG_DELETE_ERROR_FOREIGN_MESSAGE = "This configurations used in menus";
-
-    private ConfigRepository $configRepository;
-    private MenuRepository $menuRepository;
-
-    public function __construct(
-        EntityManagerInterface $entityManager, 
-        LoggerInterface $logger, 
-        ConfigRepository $configRepository,
-        MenuRepository $menuRepository
-    ) {
-
-        parent::__construct($entityManager, $logger);
-        $this->configRepository = $configRepository;
-        $this->menuRepository = $menuRepository;
-    }
 
     public function index(Request $request, PaginatorInterface $paginator, int $page = 1): Response
     {
