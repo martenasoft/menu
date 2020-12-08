@@ -17,6 +17,7 @@ use MartenaSoft\Menu\Service\SaveMenuItemServiceInterface;
 use MartenaSoft\NestedSets\Exception\NestedSetsMoveUnderSelfException;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -56,20 +57,25 @@ class AdminController extends AbstractMenuAdminController
             $menu = new Menu();
             $menu->setParentId($parent->getId());
             $menu->setTree($parent->getTree());
-            $form = $this->save($request, $menu, $parent);
+
+            $form = $this->createForm(MenuType::class, $menu, ['menu' => $menu]);
+
+            $form->handleRequest($request);
             $formView = $form->createView();
+
             if ($form->isSubmitted() && $form->isValid()) {
+                $this->saveMenuItemService->save($menu, $parent);
                 $this->addFlash(CommonValues::FLASH_SUCCESS_TYPE, self::MENU_SAVED_SUCCESS_MESSAGE);
                 return $this->redirectToRoute('menu_admin_index');
             }
 
         } catch (\Throwable $exception) {
+
             $this->getLogger()->error(
                 CommonValues::ERROR_FORM_SAVE_LOGGER_MESSAGE,
                 [
-                    'file' => __CLASS__,
-                    'func' => __FUNCTION__,
-                    'line' => __LINE__,
+                    'file' => $exception->getFile(),
+                    'line' => $exception->getLine(),
                     'message' => $exception->getMessage(),
                     'code' => $exception->getCode()
                 ]
@@ -90,9 +96,14 @@ class AdminController extends AbstractMenuAdminController
         try {
             $parent = $this->getMenuRepository()->find($menu->getParentId());
 
-            $form = $this->save($request, $menu, $parent);
+            $form = $this->createForm(MenuType::class, $menu, ['menu' => $menu]);
+
+            $form->handleRequest($request);
             $formView = $form->createView();
+
             if ($form->isSubmitted() && $form->isValid()) {
+                $this->saveMenuItemService->save($menu, $parent);
+
                 $this->addFlash(CommonValues::FLASH_SUCCESS_TYPE, self::MENU_SAVED_SUCCESS_MESSAGE);
                 return $this->redirectToRoute('menu_admin_index');
             }
@@ -131,6 +142,7 @@ class AdminController extends AbstractMenuAdminController
         }
         try {
             $this->getMenuRepository()->upDown($menuEntity, false);
+            $this->saveMenuItemService->reInitUrlPath($menuEntity);
         } catch (ElementNotFoundException | \Throwable $exception) {
             $this->addFlash(
                 CommonValues::FLASH_ERROR_TYPE,
@@ -153,9 +165,11 @@ class AdminController extends AbstractMenuAdminController
                 CommonValues::FLASH_ERROR_TYPE,
                 CommonValues::ERROR_ENTITY_RECORD_NOT_FOUND
             );
+
             return $this->redirectToRoute('menu_admin_index', $this->getActiveParams($request));
         }
         $this->getMenuRepository()->upDown($menuEntity);
+        $this->saveMenuItemService->reInitUrlPath($menuEntity);
         $this->addFlash(
             CommonValues::FLASH_SUCCESS_TYPE,
             self::MENU_MOVED_UP_SUCCESS_MESSAGE
@@ -180,48 +194,27 @@ class AdminController extends AbstractMenuAdminController
     }
 
     private function save(
-        Request $request,
-
+        FormInterface $form,
         Menu $menuEntity,
         ?Menu $parent = null
-    ): FormInterface {
+    ): void {
 
-        $form = $this->createForm(MenuType::class, $menuEntity, ['menu' => $menuEntity]);
-        $form->handleRequest($request);
+        $defaultConfig = null;
+        if ($form->getData()->getParentId() != $parent->getId()) {
 
-        if ($form->isSubmitted() && $form->isValid()) {
-
-            $defaultConfig = null;
-
-            if ($form->getData()->getParentId() != $parent->getId()) {
-
-                if ($form->getData()->getParentId() > 0) {
-                    $parent = $this->getMenuRepository()->find($form->getData()->getParentId());
-                } else {
-                    $defaultConfig = $this->getConfigRepository()->getOrCreateDefault();
-                }
-            }
-
-            try {
-                $this->saveMenuItemService->save($menuEntity, $parent, $defaultConfig);
-
-                $this->getEntityManager()->beginTransaction();
-                if ($menuEntity->getId() === null) {
-                    $this->getMenuRepository()->create($menuEntity, $parent);
-                } else {
-
-
-
-                }
-                $this->getEntityManager()->flush($menuEntity);
-                $this->getEntityManager()->commit();
-
-            } catch (\Throwable $exception) {
-                $this->getEntityManager()->rollback();
-                throw $exception;
+            if ($form->getData()->getParentId() > 0) {
+                $parent = $this->getMenuRepository()->find($form->getData()->getParentId());
+            } else {
+                $defaultConfig = $this->getConfigRepository()->getOrCreateDefault();
             }
         }
-        return $form;
+
+        try {
+            $this->saveMenuItemService->save($menuEntity, $parent, $defaultConfig);
+        } catch (\Throwable $exception) {
+            $form->addError(new FormError());
+            throw $exception;
+        }
     }
 }
 

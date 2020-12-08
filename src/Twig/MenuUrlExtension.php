@@ -20,6 +20,7 @@ class MenuUrlExtension extends AbstractExtension
     {
         return [
             new TwigFilter('mUrl', [$this, 'getUrl']),
+            new TwigFilter('mIsActive', [$this, 'isActive']),
         ];
     }
 
@@ -31,11 +32,17 @@ class MenuUrlExtension extends AbstractExtension
 
         $result = $prefix .
             $menuItem->getPath() .
-            '/' .
-            $menuItem->getTransliteratedUrl() .
             (!empty($postfix) ? '/' : '').
             $postfix;
         return $this->clearUrl($result);
+    }
+
+    public function isActive(?MenuInterface $menu, string $activeUrl): bool
+    {
+        if (empty($url = substr($activeUrl, 0, strrpos($activeUrl, '?')))) {
+            $url = $activeUrl;
+        }
+        return ($menu->getPath() == $url);
     }
 
     private function clearUrl(string $url): string

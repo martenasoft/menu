@@ -7,6 +7,10 @@ interface MenuInterface
     public const URL_TYPE_TRANSLITERATED = 1;
     public const URL_TYPE_SHORT = 2;
 
+    public const TYPE_SECTION = 1;
+    public const TYPE_PAGE = 2;
+    public const TYPE_EXTERNAL = 3;
+
     public function getId(): ?int;
 
     public function setId(?int $id): self;
@@ -56,4 +60,8 @@ interface MenuInterface
     public function setPath(?string $path): self;
 
     public function getTransliteratedUrl(int $type = self::URL_TYPE_TRANSLITERATED): string;
+
+    public function getType(): ?int;
+
+    public function setType(?int $type): self;
 }

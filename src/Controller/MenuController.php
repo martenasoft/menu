@@ -29,7 +29,12 @@ class MenuController extends AbstractController
         $items = [];
 
         if ($menu) {
-            $items = $this->menuRepository->getAllSubItemsQueryBuilder($menu)->getQuery()->getResult();
+            $items = $this
+                ->menuRepository
+                ->getAllSubItemsQueryBuilder($menu)
+                ->orderBy(MenuRepository::getAlias().'.lft', 'ASC')
+                ->getQuery()
+                ->getResult();
         }
 
         return $this->render('@MartenaSoftMenu/menu/vertical.html.twig', [

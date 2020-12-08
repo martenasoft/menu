@@ -75,6 +75,9 @@ class Menu implements CommonEntityInterface, NodeInterface, TrashEntityInterface
     /** @ORM\Column(type="string", nullable=true) */
     private ?string $path;
 
+    /** @ORM\Column(type="smallint", nullable=true) */
+    private ?int $type;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -204,6 +207,17 @@ class Menu implements CommonEntityInterface, NodeInterface, TrashEntityInterface
     public function setPath(?string $path): self
     {
         $this->path = $path;
+        return $this;
+    }
+
+    public function getType(): ?int
+    {
+        return $this->type;
+    }
+
+    public function setType(?int $type): self
+    {
+        $this->type = $type;
         return $this;
     }
 

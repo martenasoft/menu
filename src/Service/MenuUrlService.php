@@ -21,9 +21,12 @@ class MenuUrlService
 
         if (!empty($items)) {
             foreach ($items as $item) {
-                $result .= $slider . $item->getTransliteratedUrl();
+                $url = $item->getTransliteratedUrl();
+                if (!empty($url)) {
+                    $result .= $slider . $item->getTransliteratedUrl();
+                }
             }
         }
-        return $result;
+        return $result.$slider.$menu->getTransliteratedUrl();
     }
 }

@@ -3,14 +3,8 @@
 namespace MartenaSoft\Menu\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
-use MartenaSoft\Common\Event\CommonEventInterface;
 use MartenaSoft\Common\Event\CommonFormBeforeSaveEvent;
-use MartenaSoft\Common\Event\CommonFormEventEntityInterface;
-use MartenaSoft\Menu\Entity\BaseMenuInterface;
-use MartenaSoft\Menu\Entity\Menu;
 use MartenaSoft\Menu\Entity\MenuInterface;
-use MartenaSoft\Menu\Exception\MenuMoveUnderOwnParentException;
-use MartenaSoft\Menu\Repository\ConfigRepository;
 use MartenaSoft\Menu\Repository\MenuRepository;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Form\FormEvent;
@@ -62,8 +56,11 @@ class SaveMenuItemService implements SaveMenuItemServiceInterface
     public function save(MenuInterface $menuEntity, ?MenuInterface $parent, ?Config $menuConfig = null): void
     {
         try {
+            $this->entityManager->beginTransaction();
+
             if (empty($menuEntity->getConfig()) || empty($menuConfig)) {
                 $menuConfig = $this->menuRepository->getConfig($menuEntity);
+
                 if (empty($menuConfig->getId())) {
                     $menuEntity->setConfig($menuConfig);
                     $menuConfig->setName($menuEntity->getName());
@@ -72,25 +69,45 @@ class SaveMenuItemService implements SaveMenuItemServiceInterface
                 }
             }
 
-            $this->entityManager->beginTransaction();
             if ($menuEntity->getId() === null) {
                 $this->menuRepository->create($menuEntity, $parent);
-            } elseif ($menuEntity->getParentId() != $parent->getId() || $menuEntity->getTree() != $parent->getTree()) {
-
+            } else {
                 $this->menuRepository->move($menuEntity, $parent);
-            }
+                $this->reInitUrlPath($menuEntity, false);
 
+            }
 
             switch ($menuConfig->getUrlPathType()) {
                 default:
                     $menuEntity->setPath($this->menuUrlService->urlPathFromItem($menuEntity));
             }
 
-            $this->entityManager->flush($menuEntity);
+            $this->entityManager->flush();
             $this->entityManager->commit();
         } catch (\Throwable $exception) {
             $this->entityManager->rollback();
             throw $exception;
         }
     }
+
+    public function reInitUrlPath(MenuInterface $menu, bool $isFlash = true): void
+    {
+        $items = $this
+            ->menuRepository
+            ->getAllQueryBuilder()
+            ->andWhere(MenuRepository::getAlias().'.tree=:tree')
+            ->setParameter('tree', $menu->getTree())
+            ->getQuery()
+            ->getResult()
+        ;
+
+        foreach ($items as $item) {
+            $item->setPath($this->menuUrlService->urlPathFromItem($item));
+        }
+
+        if ($isFlash) {
+            $this->entityManager->flush();
+        }
+    }
+
 }

@@ -7,10 +7,12 @@
     {% endif %}
 
 {% elseif item.url is not empty %}
-    {% if showLinkInActive == false and item.url == request.server.get('REQUEST_URI') %}
+    {% set url = item | mUrl %}
+    {% set isActive = item | mIsActive(request.server.get('REQUEST_URI')) %}
+    {% if showLinkInActive == false and isActive  %}
         <strong>{{ item.name }}</strong>
     {% else %}
-        <a href="{{ item.url }}" target="_blank">{{ item.name }}</a>
+        <a href="{{ url }}">{{ item.name }}</a>
     {% endif %}
 {% else %}
     {{ item.name }}

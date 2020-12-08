@@ -18,10 +18,10 @@ menu_admin_delete:
   controller: 'MartenaSoft\Menu\Controller\AdminController::delete'
 
 menu_admin_up:
-  path: /config/up/{id}
+  path: /up/{id}
   controller: 'MartenaSoft\Menu\Controller\AdminController::up'
 
 menu_admin_down:
-  path: /config/down/{id}
+  path: /down/{id}
   controller: 'MartenaSoft\Menu\Controller\AdminController::down'
 

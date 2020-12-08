@@ -66,10 +66,9 @@ class MenuRepository extends AbstractCommonRepository
         return $queryBuilder;
     }
 
-    public function getAllSubItemsQueryBuilder(MenuInterface $menu): QueryBuilder
+    public function getAllSubItemsQueryBuilder(MenuInterface $menu, ?QueryBuilder $queryBuilder = null): QueryBuilder
     {
-        return $this
-            ->getQueryBuilder()
+        return $this->getQueryBuilder($queryBuilder)
             ->andWhere(static::getAlias() . ".tree=:tree")->setParameter("tree", $menu->getTree())
             ->andWhere(static::getAlias() . ".lft>:lft")->setParameter("lft", $menu->getLft())
             ->andWhere(static::getAlias() . ".rgt<:rgt")->setParameter("rgt", $menu->getRgt());
