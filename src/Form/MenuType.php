@@ -2,6 +2,7 @@
 
 namespace MartenaSoft\Menu\Form;
 
+use MartenaSoft\Menu\Entity\MenuInterface;
 use MartenaSoft\Menu\Repository\MenuRepository;
 use MartenaSoft\NestedSets\Entity\NodeInterface;
 use Symfony\Component\Form\AbstractType;
@@ -44,6 +45,13 @@ class MenuType extends AbstractType
             ->add('url', TextType::class, [
                 'required' => false
             ])
+            ->add('type', ChoiceType::class, [
+                'choices' => [
+                    'Section' => MenuInterface::TYPE_SECTION,
+                    'Page' => MenuInterface::TYPE_PAGE,
+                    'External'  => MenuInterface::TYPE_EXTERNAL
+                ]
+            ])
         ;
     }
 
@@ -57,7 +65,6 @@ class MenuType extends AbstractType
 
     private function getMenuDropdownArray(NodeInterface $item): ?array
     {
-
         $returnArray[''] = 0;
         $queryBuilder = $this
             ->menuRepository

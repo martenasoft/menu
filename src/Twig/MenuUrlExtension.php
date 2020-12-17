@@ -42,7 +42,7 @@ class MenuUrlExtension extends AbstractExtension
         if (empty($url = substr($activeUrl, 0, strrpos($activeUrl, '?')))) {
             $url = $activeUrl;
         }
-        return ($menu->getPath() == $url);
+        return ($menu->getPath() == $url || $menu->getPath().'.html' == $url);
     }
 
     private function clearUrl(string $url): string

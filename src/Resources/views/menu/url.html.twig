@@ -12,7 +12,12 @@
     {% if showLinkInActive == false and isActive  %}
         <strong>{{ item.name }}</strong>
     {% else %}
-        <a href="{{ url }}">{{ item.name }}</a>
+
+        {% if item.type == constant('MartenaSoft\\Menu\\Entity\\MenuInterface::TYPE_PAGE') %}
+            <a href="{{ url }}.html">{{ item.name }}</a>
+        {% else %}
+            <a href="{{ url }}">{{ item.name }}</a>
+        {% endif %}
     {% endif %}
 {% else %}
     {{ item.name }}
