@@ -2,6 +2,7 @@
 
 namespace MartenaSoft\Menu\Repository;
 
+use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use MartenaSoft\Common\Entity\CommonEntityConfigInterface;
@@ -107,7 +108,7 @@ class MenuRepository extends AbstractCommonRepository
 
     public function getParentByItemId(int $id): ?MenuInterface
     {
-        $sql = "SELECT parent_id FROM menu WHERE `id`=:id";
+        $sql = "SELECT parent_id FROM `".$this->getClassMetadata()->getTableName()."` WHERE `id`=:id";
         $parentId = $this->getEntityManager()->getConnection()->fetchOne($sql, ["id" => $id]);
         return $this->find($parentId);
     }
@@ -140,5 +141,25 @@ class MenuRepository extends AbstractCommonRepository
         }
 
         return $config;
+    }
+
+    public function updateUrlInSubElements(MenuInterface $menu, string $oldUrl): void
+    {
+        $items = $this
+            ->getAllQueryBuilder()
+            ->andWhere($this->getAlias().".tree=:tree")
+            ->setParameter("tree", $menu->getTree())
+            ->getQuery()
+            ->getResult()
+        ;
+
+        if (!empty($items)) {
+            foreach ($items as $item) {
+                if ($item->getType() == MenuInterface::URL_TYPE_TRANSLITERATED) {
+                    $newPath = str_replace($oldUrl, $menu->getUrl(), $item->getPath());
+                    $item->setPath($newPath);
+                }
+            }
+        }
     }
 }

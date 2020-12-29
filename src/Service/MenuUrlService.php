@@ -15,8 +15,12 @@ class MenuUrlService
 
     public function urlPathFromItem(?MenuInterface $menu, string $slider = "/"): ?string
     {
-        $queryBuilder = $this->menuRepository->getParentsByItemQueryBuilder($menu);
-        $items = $queryBuilder->orderBy(MenuRepository::getAlias().".rgt", "DESC")->getQuery()->getResult();
+        $queryBuilder = $this
+            ->menuRepository
+            ->getParentsByItemQueryBuilder($menu)
+            ->orderBy(MenuRepository::getAlias().".rgt", "DESC")
+        ;
+        $items = $queryBuilder->getQuery()->getResult();
         $result = "";
 
         if (!empty($items)) {

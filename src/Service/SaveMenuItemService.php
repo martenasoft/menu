@@ -100,7 +100,6 @@ class SaveMenuItemService implements SaveMenuItemServiceInterface
             ->getQuery()
             ->getResult()
         ;
-
         foreach ($items as $item) {
             $item->setPath($this->menuUrlService->urlPathFromItem($item));
         }
@@ -109,5 +108,4 @@ class SaveMenuItemService implements SaveMenuItemServiceInterface
             $this->entityManager->flush();
         }
     }
-
 }

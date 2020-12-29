@@ -78,7 +78,7 @@ class AdminRootController extends AbstractMenuAdminController
     private function save(Request $request, Menu $menu): FormInterface
     {
         $isShowConfigDropdown = ($this->getConfigRepository()->count([]) > 0);
-
+        $oldMenu = $menu->getUrl();
         $form = $this->createForm(
             RootMenuType::class,
             $menu,
@@ -93,6 +93,8 @@ class AdminRootController extends AbstractMenuAdminController
                 if ($menu->getId() === null) {
                     $menu = $this->getMenuRepository()->create($menu);
                     $this->getEntityManager()->refresh($menu);
+                } else {
+                    $this->getMenuRepository()->updateUrlInSubElements($menu, $oldMenu);
                 }
 
                 $this->getEntityManager()->flush();

@@ -67,6 +67,7 @@ class AdminConfigController extends AbstractMenuAdminController
                     $menuConfigEntity->setIsDefault(true);
                 }
 
+
                 $this->getEntityManager()->flush($menuConfigEntity);
                 $this->addFlash(CommonValues::FLASH_SUCCESS_TYPE, self::CONFIG_SAVED_SUCCESS_MESSAGE);
                 return $this->redirectToRoute('menu_admin_config_index');
