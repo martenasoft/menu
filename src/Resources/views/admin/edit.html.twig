@@ -1,21 +1,40 @@
-{% extends 'base-admin.html.twig' %}
+{% extends template  %}
 
-{% block title %}
-    Edit item. {{ menu.name }}.
-{% endblock %}
+{% block title %}Menu Admin{% endblock %}
 
-{% block h1 %}
-    Edit item.: {{ menu.name }}.
-{% endblock %}
+{% block h1 %}Menu Admin{% endblock %}
 
 {% block body %}
-    {% if form is empty %}
-        <div class="alert alert-error">
-            System error! See your logs.
+
+    <div class="row">
+        <div class="col-6">
+            {% include '@Menu/elements/tree_block.html.twig' %}
         </div>
-    {% else %}
-        {% include '@MartenaSoftMenu/admin/form.html.twig' with {
-            form: form
-        } %}
-    {% endif %}
+
+        <div class="col-6">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-6">
+                            <h5>Edit: {{ menuItem is defined ? menuItem.name }}</h5>
+                        </div>
+                        <div class="col-6">
+                            <div class="nav justify-content-end">
+                                {% if menuItem is defined and menuItem is not empty %}
+                                <a href="{{ path('menu_admin_new_sub_menu', {id: menuItem.id}) }}"
+                                   class="btn btn-success ">New sub Menu</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                   {% include '@Menu/admin/_form.html.twig' %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
 {% endblock %}

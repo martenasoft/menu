@@ -1,27 +1,19 @@
 menu_admin_index:
-  path: /{page}
+  path: /
   defaults:
-    page: 1
-  controller: 'MartenaSoft\Menu\Controller\AdminController::index'
+  controller: 'SymfonySimpleSite\Menu\Controller\AdminController::index'
 
-
-menu_admin_create:
-  path: /create/{parent}
-  controller: 'MartenaSoft\Menu\Controller\AdminController::create'
+menu_admin_new_sub_menu:
+  path: /new-sub-menu/{id}
+  defaults:
+  controller: 'SymfonySimpleSite\Menu\Controller\AdminController::newSubMenu'
 
 menu_admin_edit:
   path: /edit/{id}
-  controller: 'MartenaSoft\Menu\Controller\AdminController::edit'
+  defaults:
+  controller: 'SymfonySimpleSite\Menu\Controller\AdminController::edit'
 
-menu_admin_delete:
-  path: /config/delete/{id}
-  controller: 'MartenaSoft\Menu\Controller\AdminController::delete'
-
-menu_admin_up:
-  path: /up/{id}
-  controller: 'MartenaSoft\Menu\Controller\AdminController::up'
-
-menu_admin_down:
-  path: /down/{id}
-  controller: 'MartenaSoft\Menu\Controller\AdminController::down'
+menu_admin_new_menu:
+  path: /new-menu
+  controller: 'SymfonySimpleSite\Menu\Controller\AdminController::newRoot'
 

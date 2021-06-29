@@ -1,12 +1,14 @@
 <?php
 
-namespace MartenaSoft\Menu\Entity;
+namespace SymfonySimpleSite\Menu\Entity;
 
-use MartenaSoft\Common\Entity\CommonEntityInterface;
-use MartenaSoft\Trash\Entity\TrashEntityInterface;
-use MartenaSoft\Menu\Repository\MenuRepository;
+use SymfonySimpleSite\Common\Interfaces\ChangeDataDayInterface;
+use SymfonySimpleSite\Common\Interfaces\StatusInterface;
+use SymfonySimpleSite\Common\Traits\ChangeDataDayTrait;
+use SymfonySimpleSite\Common\Traits\StatusTrait;
+use SymfonySimpleSite\Menu\Repository\MenuRepository;
 use Doctrine\ORM\Mapping as ORM;
-use MartenaSoft\NestedSets\Entity\NodeInterface;
+use SymfonySimpleSite\NestedSets\Entity\NodeInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
@@ -27,8 +29,9 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  *          }
  *     )
  */
-class Menu implements CommonEntityInterface, NodeInterface, TrashEntityInterface, MenuInterface
+class Menu implements NodeInterface, StatusInterface, ChangeDataDayInterface
 {
+    use StatusTrait, ChangeDataDayTrait;
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -56,15 +59,6 @@ class Menu implements CommonEntityInterface, NodeInterface, TrashEntityInterface
 
     /** @ORM\Column(type="integer") */
     private ?int $parentId = null;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="MartenaSoft\Menu\Entity\Config", inversedBy="menu", cascade={"persist"})
-     * @ORM\JoinColumn(nullable=true)
-     */
-    private ?Config $config = null;
-
-    /** @ORM\Column(type="boolean")   */
-    private bool $isDeleted = false;
 
     /** @ORM\Column(type="string", nullable=true) */
     private ?string $route;
@@ -152,28 +146,6 @@ class Menu implements CommonEntityInterface, NodeInterface, TrashEntityInterface
     public function setParentId(?int $parentId): self
     {
         $this->parentId = $parentId;
-        return $this;
-    }
-
-    public function getConfig(): ?Config
-    {
-        return $this->config;
-    }
-
-    public function setConfig(?Config $config): self
-    {
-        $this->config = $config;
-        return $this;
-    }
-
-    public function isDeleted(): ?bool
-    {
-        return $this->isDeleted;
-    }
-
-    public function setIsDeleted(?bool $isDeleted): self
-    {
-        $this->isDeleted = $isDeleted;
         return $this;
     }
 

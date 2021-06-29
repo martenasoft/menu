@@ -1,0 +1,23 @@
+{% set lvl = 0  %}
+{% for i,item in items %}
+    {% if lvl == item.lvl %}
+        </li>
+    {% elseif item.lvl > lvl%}
+        <ul>
+    {% else %}
+        </li>
+        {% for i in 1..(lvl-item.lvl) %}
+            </ul>
+            </li>
+        {% endfor %}
+    {% endif %}
+        <li>
+        <a href="{{ path('menu_admin_edit', {id: item.id}) }}">{{ item.name }}</a>
+        {% set lvl = item.lvl %}
+
+{% endfor %}
+
+{% for i in 1..lvl %}
+        </li>
+</ul>
+{% endfor%}

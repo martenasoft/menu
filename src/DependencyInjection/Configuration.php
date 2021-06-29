@@ -1,16 +1,16 @@
 <?php
 
-namespace MartenaSoft\Menu\DependencyInjection;
+namespace SymfonySimpleSite\Menu\DependencyInjection;
 
-use MartenaSoft\Menu\MartenaSoftMenuBundle;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
+use SymfonySimpleSite\Menu\MenuBundle;
 
 class Configuration implements ConfigurationInterface
 {
     public function getConfigTreeBuilder()
     {
-        $treeBuilder = new TreeBuilder(MartenaSoftMenuBundle::getConfigName());
+        $treeBuilder = new TreeBuilder(MenuBundle::getConfigName());
 
         $treeBuilder->getRootNode()
             ->children()

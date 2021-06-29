@@ -1,3 +1,0 @@
-menu_index:
-  path: /
-  controller: 'MartenaSoft\Menu\Controller\MenuController::menu'

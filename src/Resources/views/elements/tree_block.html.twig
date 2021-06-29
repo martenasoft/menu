@@ -1,0 +1,21 @@
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-6">
+                <h5>Menu</h5>
+            </div>
+            <div class="col-6">
+                <div class="nav justify-content-end">
+                    <a href="{{ path('menu_admin_new_menu') }}" class="btn btn-success ">New Menu</a>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+    <div class="card-body">
+        <div id="menu-jstree">
+           {{ render(controller('SymfonySimpleSite\\Menu\\Controller\\AdminController::treeMenu')) }}
+        </div>
+    </div>
+</div>

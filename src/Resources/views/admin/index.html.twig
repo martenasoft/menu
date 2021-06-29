@@ -1,105 +1,15 @@
-{% extends 'base-admin.html.twig' %}
+{% extends template %}
 
-{% block title %}Menu admin items.{% endblock %}
-{% block h1 %}Menu admin items.{% endblock %}
-{% set activeUrlParamName = constant('MartenaSoft\\Common\\Library\\CommonValues::ACTIVE_URL_PARAM_NAME') %}
+{% block title %}Menu Admin{% endblock %}
+
+{% block h1 %}Menu Admin{% endblock %}
 
 {% block body %}
 
-    <div class="count">
-        <div class="row">
-            <div class="col-3">
-                Total: {{ pagination.getTotalItemCount }}
-            </div>
-            <div class="col-6">
-                <div class="float-right">
-                    {% include '@MartenaSoftCommon/common/search_form.html.twig' with
-                        {'searh_from_return_url' : path('menu_admin_index')} %}
-                </div>
-            </div>
-            <div class="col-3">
-                <div class="float-right">
-                    <a class="btn btn-success" href="{{ path('menu_root_admin_create') }}">
-                        <i class="cil-plus"></i>
-                    </a>
-                    <a class="btn btn-secondary" href="{{ path('menu_admin_config_index') }}">...</a>
-                </div>
-            </div>
-        </div>
-        <hr>
+<div class="row">
+    <div class="col-12">
+        {% include '@Menu/elements/tree_block.html.twig' %}
     </div>
-    {% set tree = 1 %}
-    <table class="table table-bordered">
-        {% for item in pagination %}
+</div>
 
-            {% if item.parentId == 0 %}
-
-                <tr>
-                    <td colspan="6"><h3>{{ item.name }}</h3></td>
-                    <td colspan="2">
-                        <div class="float-right ">
-                            {% include '@MartenaSoftMenu/blocks/action_buttons_items_list.html.twig'
-                                with {
-                                item: item,
-                                getTotalItemCount:  pagination.getTotalItemCount
-                            } %}
-
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <th width="5%">#ID</th>
-                    <th width="5%">lft</th>
-                    <th width="5%">rgt</th>
-                    <th width="5%">parent</th>
-                    <th width="5%">lvl</th>
-                    <th width="5%">tree</th>
-                    <th>Name</th>
-                    <th></th>
-                </tr>
-
-
-
-            {% else %}
-                <tr class="{{ app.request.get(activeUrlParamName) == item.id ? 'table-active' }}  ">
-                    <td>{{ item.id }}</td>
-                    <td width="5%">{{ item.lft }}</td>
-                    <td width="5%">{{ item.rgt }}</td>
-                    <td width="5%">{{ item.parentId }}</td>
-                    <td width="5%">{{ item.lvl }}</td>
-                    <td width="5%">{{ item.tree }}</td>
-                    <td>
-                        <div>
-                            {% for i in 1..item.lvl %}
-                                {{ i > 1 ? "." }}
-                            {% endfor %}
-                            {{ item.name }}
-                        </div>
-                    </td>
-                    <td>
-                        <div class="float-right ">
-                            {% include '@MartenaSoftMenu/blocks/action_buttons_items_list.html.twig'
-                                with {
-                                item: item,
-                                getTotalItemCount:  pagination.getTotalItemCount
-                            } %}
-
-                        </div>
-                    </td>
-                </tr>
-
-            {% endif %}
-
-            {% set tree = item.tree %}
-            {% if tree != item.tree %}
-
-            {% endif %}
-
-
-        {% endfor %}
-    </table>
-    <hr>
-    <div class="navigation">
-        {{ knp_pagination_render(pagination) }}
-    </div>
 {% endblock %}

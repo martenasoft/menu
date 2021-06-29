@@ -1,25 +1,28 @@
 <?php
 
-namespace MartenaSoft\Menu\Repository;
+namespace SymfonySimpleSite\Menu\Repository;
 
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
-use MartenaSoft\Common\Entity\CommonEntityConfigInterface;
-use MartenaSoft\Common\Repository\AbstractCommonRepository;
-use MartenaSoft\Menu\Entity\Config;
-use MartenaSoft\Menu\Entity\Menu;
-use MartenaSoft\Menu\Entity\MenuInterface;
-use MartenaSoft\NestedSets\Entity\NodeInterface;
-use MartenaSoft\NestedSets\Repository\NestedSetsCreateDeleteInterface;
-use MartenaSoft\NestedSets\Repository\NestedSetsMoveItemsInterface;
-use MartenaSoft\NestedSets\Repository\NestedSetsMoveUpDownInterface;
+use SymfonySimpleSite\Common\Traits\AliasRepositoryTrait;
+use SymfonySimpleSite\Common\Traits\CommonRepository;
+use SymfonySimpleSite\Common\Traits\GetQueryBuilderRepositoryTrait;
+use SymfonySimpleSite\Menu\Entity\Config;
+use SymfonySimpleSite\Menu\Entity\Menu;
+use SymfonySimpleSite\NestedSets\Entity\NodeInterface;
+use SymfonySimpleSite\NestedSets\Repository\NestedSetsCreateDeleteInterface;
+use SymfonySimpleSite\NestedSets\Repository\NestedSetsMoveItemsInterface;
+use SymfonySimpleSite\NestedSets\Repository\NestedSetsMoveUpDownInterface;
 
-class MenuRepository extends AbstractCommonRepository
+class MenuRepository extends ServiceEntityRepository
     implements NestedSetsMoveItemsInterface,
                NestedSetsMoveUpDownInterface,
                NestedSetsCreateDeleteInterface
 {
+    use AliasRepositoryTrait, GetQueryBuilderRepositoryTrait;
+    
     private NestedSetsMoveItemsInterface $nestedSetsMoveItems;
     private NestedSetsMoveUpDownInterface $nestedSetsMoveUpDown;
     private NestedSetsCreateDeleteInterface $nestedSetsCreateDelete;
@@ -39,13 +42,8 @@ class MenuRepository extends AbstractCommonRepository
         $this->nestedSetsMoveUpDown->setEntityClassName(Menu::class);
         $this->nestedSetsMoveItems->setEntityClassName(Menu::class);
         $this->nestedSetsCreateDelete->setEntityClassName(Menu::class);
+        $this->setAlias('m');
     }
-
-    public static function getAlias(): string
-    {
-        return 'm';
-    }
-
 
     public function create(NodeInterface $node, ?NodeInterface $parent = null): NodeInterface
     {
@@ -61,25 +59,25 @@ class MenuRepository extends AbstractCommonRepository
     {
         $queryBuilder = $this
             ->getQueryBuilder()
-            ->orderBy(static::getAlias() . ".tree", "ASC")
-            ->addOrderBy(static::getAlias() . ".lft", "ASC");
+            ->orderBy($this->getAlias() . ".tree", "ASC")
+            ->addOrderBy($this->getAlias() . ".lft", "ASC");
 
         return $queryBuilder;
     }
 
-    public function getAllSubItemsQueryBuilder(MenuInterface $menu, ?QueryBuilder $queryBuilder = null): QueryBuilder
+    public function getAllSubItemsQueryBuilder(NodeInterface $menu, ?QueryBuilder $queryBuilder = null): QueryBuilder
     {
         return $this->getQueryBuilder($queryBuilder)
-            ->andWhere(static::getAlias() . ".tree=:tree")->setParameter("tree", $menu->getTree())
-            ->andWhere(static::getAlias() . ".lft>:lft")->setParameter("lft", $menu->getLft())
-            ->andWhere(static::getAlias() . ".rgt<:rgt")->setParameter("rgt", $menu->getRgt());
+            ->andWhere($this->getAlias() . ".tree=:tree")->setParameter("tree", $menu->getTree())
+            ->andWhere($this->getAlias() . ".lft>:lft")->setParameter("lft", $menu->getLft())
+            ->andWhere($this->getAlias() . ".rgt<:rgt")->setParameter("rgt", $menu->getRgt());
     }
 
     public function getAllRootsQueryBuilder(): QueryBuilder
     {
         return $this
             ->getQueryBuilder()
-            ->andWhere(static::getAlias() . ".lft=:lft")
+            ->andWhere($this->getAlias() . ".lft=:lft")
             ->setParameter("lft", 1);
     }
 
@@ -101,8 +99,8 @@ class MenuRepository extends AbstractCommonRepository
     {
         return $this
             ->getQueryBuilder()
-            ->leftJoin(static::getAlias() . ".config", "config")
-            ->andWhere(static::getAlias() . ".name=:name")
+            ->leftJoin($this->getAlias() . ".config", "config")
+            ->andWhere($this->getAlias() . ".name=:name")
             ->setParameter("name", $name);
     }
 
@@ -115,7 +113,7 @@ class MenuRepository extends AbstractCommonRepository
 
     public function getParentsByItemQueryBuilder(MenuInterface $menu): QueryBuilder
     {
-        $alias = static::getAlias();
+        $alias = $this->getAlias();
 
         return $this
             ->getQueryBuilder()

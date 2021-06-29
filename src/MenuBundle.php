@@ -1,12 +1,12 @@
 <?php
 
-namespace MartenaSoft\Menu;
+namespace SymfonySimpleSite\Menu;
 
-use MartenaSoft\Common\CommonMartenaSoftBundleInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
+use SymfonySimpleSite\Common\Interfaces\BundleInterface;
 
-class MartenaSoftMenuBundle extends Bundle implements CommonMartenaSoftBundleInterface
+class MenuBundle extends Bundle implements BundleInterface
 {
     public function build(ContainerBuilder $container)
     {
@@ -15,6 +15,6 @@ class MartenaSoftMenuBundle extends Bundle implements CommonMartenaSoftBundleInt
 
     public static function getConfigName(): string
     {
-        return 'martena_soft_menu';
+        return 'menu';
     }
 }

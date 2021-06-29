@@ -1,220 +1,109 @@
 <?php
 
-namespace MartenaSoft\Menu\Controller;
+namespace SymfonySimpleSite\Menu\Controller;
 
-use App\Kernel;
-use Doctrine\ORM\EntityManagerInterface;
-use Knp\Component\Pager\PaginatorInterface;
-use MartenaSoft\Common\Exception\ElementNotFoundException;
-use MartenaSoft\Common\Library\CommonValues;
-use MartenaSoft\Menu\Entity\Config;
-use MartenaSoft\Menu\Entity\Menu;
-use MartenaSoft\Menu\Form\MenuType;
-use MartenaSoft\Menu\Form\RootManyType;
-use MartenaSoft\Menu\Repository\ConfigRepository;
-use MartenaSoft\Menu\Repository\MenuRepository;
-use MartenaSoft\Menu\Service\SaveMenuItemServiceInterface;
-use MartenaSoft\NestedSets\Exception\NestedSetsMoveUnderSelfException;
-use Psr\Log\LoggerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\FormError;
-use Symfony\Component\Form\FormInterface;
+
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\RouterInterface;
+use SymfonySimpleSite\Common\Interfaces\StatusInterface;
+use SymfonySimpleSite\Menu\Entity\Menu;
+use SymfonySimpleSite\Menu\Form\MenuType;
+use SymfonySimpleSite\Menu\Repository\MenuRepository;
+use SymfonySimpleSite\Page\Controller\AbstractAdminController;
 
-class AdminController extends AbstractMenuAdminController
+class AdminController extends AbstractAdminController
 {
-    public const MENU_MOVED_DOWN_SUCCESS_MESSAGE = 'Menu moved down';
-    public const MENU_MOVED_UP_SUCCESS_MESSAGE = 'Menu moved up';
-
-    public function index(Request $request, PaginatorInterface $paginator, int $page = 1): Response
+    public function index(): Response
     {
-        $itemQueryBuilder = $this
-            ->getMenuRepository()
-            ->getAllQueryBuilder();
-
-        $w = $request->query->get(CommonValues::SEARCH_URL_PARAM_NAME);
-
-        if (!empty($w)) {
-            $itemQueryBuilder->andWhere("m.name LIKE :w")->setParameter("w", "%{$w}%");
-        }
-
-        $itemQuery = $itemQueryBuilder->getQuery();
-        $pagination = $paginator->paginate(
-            $itemQuery,
-            $page,
-            CommonValues::ADMIN_PAGINATION_LIMIT,
-            ['distinct' => false]
-        );
-        return $this->render('@MartenaSoftMenu/admin/index.html.twig', ['pagination' => $pagination]);
-    }
-
-    public function create(Request $request, Menu $parent): Response
-    {
-        $formView = null;
-        try {
-            $menu = new Menu();
-            $menu->setParentId($parent->getId());
-            $menu->setTree($parent->getTree());
-
-            $form = $this->createForm(MenuType::class, $menu, ['menu' => $menu]);
-
-            $form->handleRequest($request);
-            $formView = $form->createView();
-
-            if ($form->isSubmitted() && $form->isValid()) {
-                $this->saveMenuItemService->save($menu, $parent);
-                $this->addFlash(CommonValues::FLASH_SUCCESS_TYPE, self::MENU_SAVED_SUCCESS_MESSAGE);
-                return $this->redirectToRoute('menu_admin_index');
-            }
-
-        } catch (\Throwable $exception) {
-
-            $this->getLogger()->error(
-                CommonValues::ERROR_FORM_SAVE_LOGGER_MESSAGE,
-                [
-                    'file' => $exception->getFile(),
-                    'line' => $exception->getLine(),
-                    'message' => $exception->getMessage(),
-                    'code' => $exception->getCode()
-                ]
-            );
-            $this->addFlash(CommonValues::FLASH_ERROR_TYPE, CommonValues::FLASH_ERROR_SYSTEM_MESSAGE);
-        }
-
-        return $this->render('@MartenaSoftMenu/admin/create.html.twig', [
-            'form' => $formView,
-            'parent' => $parent
+        return $this->render('@Menu/admin/index.html.twig', [
+            'template' => $this->getTemplate()
         ]);
     }
 
-    public function edit(Request $request, Menu $menu): Response
+    public function newRoot(Request $request, MenuRepository $menuRepository): Response
     {
-        $formView = null;
+        $menu = new Menu();
+        $menu->setStatus(StatusInterface::STATUS_ACTIVE);
+        $menu->setCreatedAt(new \DateTime('now'));
 
-        try {
-            $parent = $this->getMenuRepository()->find($menu->getParentId());
+        $form = $this->createForm(MenuType::class, $menu);
+        $form->handleRequest($request);
 
-            $form = $this->createForm(MenuType::class, $menu, ['menu' => $menu]);
-
-            $form->handleRequest($request);
-            $formView = $form->createView();
-
-            if ($form->isSubmitted() && $form->isValid()) {
-                $this->saveMenuItemService->save($menu, $parent);
-
-                $this->addFlash(CommonValues::FLASH_SUCCESS_TYPE, self::MENU_SAVED_SUCCESS_MESSAGE);
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                $menuRepository->create($menu);
                 return $this->redirectToRoute('menu_admin_index');
+            } catch (\Throwable $exception) {
+                throw $exception;
+               $this->addFlash("Error", "Error");
             }
-        } catch (NestedSetsMoveUnderSelfException $exception) {
-            $this->addFlash(CommonValues::FLASH_ERROR_TYPE,
-                NestedSetsMoveUnderSelfException::MESSAGE);
-            return $this->redirectToRoute('menu_admin_index');
-        } catch (\Throwable $exception) {
-            $this->getLogger()->error(
-                CommonValues::ERROR_FORM_SAVE_LOGGER_MESSAGE,
-                [
-                    'file' => $exception->getFile(),
-                    'line' => $exception->getLine(),
-                    'message' => $exception->getMessage(),
-                    'code' => $exception->getCode()
-                ]
-            );
-            $this->addFlash(CommonValues::FLASH_ERROR_TYPE, CommonValues::FLASH_ERROR_SYSTEM_MESSAGE);
         }
 
-
-        return $this->render('@MartenaSoftMenu/admin/edit.html.twig', [
-            'form' => $formView,
-            'menu' => $menu
+        return $this->render('@Menu/admin/edit.html.twig', [
+            'template' => $this->getTemplate(),
+            'form' => $form->createView()
         ]);
     }
 
-    public function down(Request $request, Menu $menuEntity): Response
+
+    public function newSubMenu(Request $request, Menu $parent, MenuRepository $menuRepository): Response
     {
-        if (empty($menuEntity)) {
-            $this->addFlash(
-                CommonValues::FLASH_ERROR_TYPE,
-                CommonValues::ERROR_ENTITY_RECORD_NOT_FOUND
-            );
-            return $this->redirectToRoute('menu_admin_index', $this->getActiveParams($request));
-        }
-        try {
-            $this->getMenuRepository()->upDown($menuEntity, false);
-            $this->saveMenuItemService->reInitUrlPath($menuEntity);
-        } catch (ElementNotFoundException | \Throwable $exception) {
-            $this->addFlash(
-                CommonValues::FLASH_ERROR_TYPE,
-                CommonValues::ERROR_ENTITY_RECORD_NOT_FOUND
-            );
-            return $this->redirectToRoute('menu_admin_index', $this->getActiveParams($request));
-        }
+        $menu = new Menu();
+        $menu->setStatus(StatusInterface::STATUS_ACTIVE);
+        $menu->setCreatedAt(new \DateTime('now'));
 
-        $this->addFlash(
-            CommonValues::FLASH_SUCCESS_TYPE,
-            self::MENU_MOVED_DOWN_SUCCESS_MESSAGE
-        );
-        return $this->redirectToRoute('menu_admin_index', $this->getActiveParams($request));
-    }
+        $form = $this->createForm(MenuType::class, $menu);
+        $form->handleRequest($request);
 
-    public function up(Request $request, Menu $menuEntity): Response
-    {
-        if (empty($menuEntity)) {
-            $this->addFlash(
-                CommonValues::FLASH_ERROR_TYPE,
-                CommonValues::ERROR_ENTITY_RECORD_NOT_FOUND
-            );
-
-            return $this->redirectToRoute('menu_admin_index', $this->getActiveParams($request));
-        }
-        $this->getMenuRepository()->upDown($menuEntity);
-        $this->saveMenuItemService->reInitUrlPath($menuEntity);
-        $this->addFlash(
-            CommonValues::FLASH_SUCCESS_TYPE,
-            self::MENU_MOVED_UP_SUCCESS_MESSAGE
-        );
-
-        return $this->redirectToRoute('menu_admin_index', $this->getActiveParams($request));
-    }
-
-    protected function getReturnRouteName(): string
-    {
-        return 'menu_admin_index';
-    }
-
-    private function getActiveParams(Request $request): array
-    {
-        $act_ = $request->query->getInt(CommonValues::ACTIVE_URL_PARAM_NAME);
-
-        if (!empty($act_)) {
-            return [CommonValues::ACTIVE_URL_PARAM_NAME => $act_];
-        }
-        return [];
-    }
-
-    private function save(
-        FormInterface $form,
-        Menu $menuEntity,
-        ?Menu $parent = null
-    ): void {
-
-        $defaultConfig = null;
-        if ($form->getData()->getParentId() != $parent->getId()) {
-
-            if ($form->getData()->getParentId() > 0) {
-                $parent = $this->getMenuRepository()->find($form->getData()->getParentId());
-            } else {
-                $defaultConfig = $this->getConfigRepository()->getOrCreateDefault();
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                $menuRepository->create($menu, $parent);
+                return $this->redirectToRoute('menu_admin_index');
+            } catch (\Throwable $exception) {
+                throw $exception;
+                $this->addFlash("Error", "Error");
             }
         }
 
-        try {
-            $this->saveMenuItemService->save($menuEntity, $parent, $defaultConfig);
-        } catch (\Throwable $exception) {
-            $form->addError(new FormError());
-            throw $exception;
+        return $this->render('@Menu/admin/edit.html.twig', [
+            'template' => $this->getTemplate(),
+            'form' => $form->createView(),
+            'menuItem' => $parent
+        ]);
+    }
+
+    public function edit(Request $request, Menu $menu, MenuRepository $menuRepository): Response
+    {
+        $menu->setStatus(StatusInterface::STATUS_ACTIVE);
+        $menu->setUpdatedAt(new \DateTime('now'));
+
+        $form = $this->createForm(MenuType::class, $menu);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                $menuRepository->create($menu);
+                return $this->redirectToRoute('menu_admin_index');
+            } catch (\Throwable $exception) {
+                throw $exception;
+                $this->addFlash("Error", "Error");
+            }
         }
+
+        return $this->render('@Menu/admin/edit.html.twig', [
+            'template' => $this->getTemplate(),
+            'form' => $form->createView(),
+            'menuItem' => $menu
+        ]);
+    }
+
+    public function treeMenu(MenuRepository $menuRepository): Response
+    {
+        return $this->render('@Menu/admin/tree_menu.html.twig', [
+            'items' => $menuRepository
+                ->getAllQueryBuilder()
+                ->getQuery()
+                ->getResult()
+        ]);
     }
 }
-

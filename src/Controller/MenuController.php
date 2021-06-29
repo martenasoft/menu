@@ -1,76 +1,26 @@
 <?php
 
-namespace MartenaSoft\Menu\Controller;
+namespace SymfonySimpleSite\Menu\Controller;
 
-use MartenaSoft\Common\Service\ConfigService\CommonConfigServiceInterface;
-use MartenaSoft\Menu\Entity\Menu;
-use MartenaSoft\Menu\Entity\MenuInterface;
-use MartenaSoft\Menu\MartenaSoftMenuBundle;
-use MartenaSoft\Menu\Repository\MenuRepository;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use SymfonySimpleSite\Menu\Entity\Menu;
+use SymfonySimpleSite\Menu\Repository\MenuRepository;
+use SymfonySimpleSite\Page\Controller\AbstractPageController;
 
-class MenuController extends AbstractController
+class MenuController extends AbstractPageController
 {
-    private MenuRepository $menuRepository;
-    private array $config;
-
-    public function __construct(MenuRepository $menuRepository, CommonConfigServiceInterface $configService)
+    public function topMenu(int $rootId, MenuRepository $menuRepository): Response
     {
-        $this->menuRepository = $menuRepository;
-        $this->config = $configService->get(MartenaSoftMenuBundle::getConfigName());
-    }
-
-    public function vertical(Request $request, string $name = 'admin_vertical'): Response
-    {
-        $menu = $this->getMenuItem($this->config[$name]);
-
-        $items = [];
-
-        if ($menu) {
-            $items = $this
-                ->menuRepository
-                ->getAllSubItemsQueryBuilder($menu)
-                ->orderBy(MenuRepository::getAlias().'.lft', 'ASC')
-                ->getQuery()
-                ->getResult();
-        }
-
-        return $this->render('@MartenaSoftMenu/menu/vertical.html.twig', [
-            'request' => $request,
-            'menu' => $menu,
-            'items' => $items
-        ]);
-    }
-
-    public function horizontal(Request $request, string $name = 'admin_horizontal'): Response
-    {
-        $menu = $this->getMenuItem($this->config[$name]);
-        $items = [];
-
-        if ($menu) {
-            $items = $this->menuRepository
-                ->getAllSubItemsQueryBuilder($menu)
-                ->andWhere("m.lvl=2")
-                ->getQuery()->getResult();
-        }
-        return $this->render('@MartenaSoftMenu/menu/horizontal.html.twig', [
-            'request' => $request,
-            'menu' => $menu,
-            'items' => $items
-        ]);
-    }
-
-    private function getMenuItem(string  $name): MenuInterface
-    {
-        $menu = $this->menuRepository->findOneByName($name);
-        if (empty($menu)) {
-            $menu = new Menu();
-            $menu->setName($name);
-            $this->menuRepository->create($menu);
-
-        }
-        return $menu;
+        $menu = $this->getEntityManager()->find(Menu::class, $rootId);
+        $items = $menuRepository
+            ->getAllSubItemsQueryBuilder($menu)
+            ->andWhere($menuRepository->getAlias().".lvl=:lvl")
+            ->setParameter('lvl', $menu->getLvl() + 1)
+            ->getQuery()
+            ->getResult()
+        ;
+        return $this->render('@Menu/frontend/top_menu.html.twig',
+            ['items' => $items]
+        );
     }
 }
